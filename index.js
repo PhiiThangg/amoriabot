@@ -381,29 +381,26 @@ function findMatchingAutoRes(guildId, content) {
   return null;
 }
 
-//autores help
-function autoResHelp(message) {
-    return new EmbedBuilder()
-        .setColor("#481f86")
-        .setDescription([
-            "# <a:helukiti:1529927128747872386>    AUTORESPONDER <a:helukiti:1529927128747872386>",
-            "",
-            '<:hoa_mini:1529258852686500021> `har create "hello" text|embed` — tạo trigger mới',
-            '<:hoa_mini:1529258852686500021> `har content "hello" nội dung` — sửa nội dung (text)',
-            '<:hoa_mini:1529258852686500021> `har title "hello" tiêu đề` — sửa title (embed)',
-            '<:hoa_mini:1529258852686500021> `har desc "hello" mô tả` — sửa description (embed)',
-            '<:hoa_mini:1529258852686500021> `har color "hello" #HEXCOLOR` — sửa màu embed',
-            '<:hoa_mini:1529258852686500021> `har footer "hello" footer` — sửa footer (embed)',
-            '<:hoa_mini:1529258852686500021> `har thumb "hello" + ảnh` — sửa thumbnail (embed)',
-            '<:hoa_mini:1529258852686500021> `har image "hello" + ảnh` — sửa ảnh lớn (embed)',
-            '<:hoa_mini:1529258852686500021> `har type "hello" text|embed` — đổi loại',
-            '<:hoa_mini:1529258852686500021> `har mode "hello" exact|contains` — đổi cách khớp',
-            '<:hoa_mini:1529258852686500021> `har on "hello" / har off "hello"` — bật/tắt',
-            '<:hoa_mini:1529258852686500021> `har list` — danh sách trigger',
-            '<:hoa_mini:1529258852686500021> `har delete "hello"` — xóa trigger',
-            "",
-            "<a:hoatim:1529735587026964491>    Ngoài ra có thể dùng slash command `/ar` với các subcommand tương tự."
-        ].join("\n"));
+//autores: help + lệnh prefix "${prefix}ar <sub> ..."
+function autoResHelp() {
+  return [
+    "**🤖 AUTORES**",
+    `\`${prefix}ar create "hello" text|embed\` — tạo trigger mới`,
+    `\`${prefix}ar content "hello" nội dung\` — sửa nội dung (text)`,
+    `\`${prefix}ar title "hello" tiêu đề\` — sửa title (embed)`,
+    `\`${prefix}ar desc "hello" mô tả\` — sửa description (embed)`,
+    `\`${prefix}ar color "hello" #ff69b4\` — sửa màu embed`,
+    `\`${prefix}ar footer "hello" footer\` — sửa footer (embed)`,
+    `\`${prefix}ar thumb "hello"\` + ảnh — sửa thumbnail (embed)`,
+    `\`${prefix}ar image "hello"\` + ảnh — sửa ảnh lớn (embed)`,
+    `\`${prefix}ar type "hello" text|embed\` — đổi loại`,
+    `\`${prefix}ar mode "hello" exact|contains\` — đổi cách khớp`,
+    `\`${prefix}ar on "hello"\` / \`${prefix}ar off "hello"\` — bật/tắt`,
+    `\`${prefix}ar list\` — danh sách trigger`,
+    `\`${prefix}ar delete "hello"\` — xóa trigger`,
+    "",
+    "Ngoài ra có thể dùng slash command `/ar` với các subcommand tương tự.",
+  ].join("\n");
 }
 
 // parseArgs: tách "..." thành 1 phần tử, còn lại tách theo khoảng trắng
@@ -417,21 +414,41 @@ function parseAutoResArgs(input) {
   return args;
 }
 
+//autores: dò trigger nhiều từ đã tồn tại trong danh sách, để không bắt buộc phải để trigger trong ngoặc kép
+function extractExistingTrigger(guildData, args) {
+  const maxLen = Math.min(args.length, 8);
+  for (let len = maxLen; len >= 1; len--) {
+    const candidate = args.slice(0, len).join(" ");
+    if (guildData[normalizeTrigger(candidate)]) {
+      return { trigger: candidate, rest: args.slice(len) };
+    }
+  }
+  return null;
+}
+
 async function handleAutoResCommand(message, rawArgs) {
   if (!message.guild) return message.channel.send("Lệnh này chỉ dùng trong server.");
   const args = [...rawArgs];
   const sub = (args.shift() || "").toLowerCase();
-if (!sub) return message.channel.send({
-    embeds: [autoResHelp(message)]
-});
+  if (!sub) return message.channel.send(autoResHelp());
 
   const guildData = getGuildAutoRes(message.guild.id);
-  const trigger = args[0];
-  const record = trigger ? findAutoRes(message.guild.id, trigger) : null;
+  const editSubs = ["delete", "content", "title", "desc", "color", "footer", "thumb", "image", "type", "mode", "on", "off"];
+  let trigger = args[0];
+  let record = trigger ? findAutoRes(message.guild.id, trigger) : null;
+
+  if (!record && editSubs.includes(sub)) {
+    const found = extractExistingTrigger(guildData, args);
+    if (found) {
+      trigger = found.trigger;
+      record = findAutoRes(message.guild.id, trigger);
+      args.splice(0, args.length, trigger, ...found.rest);
+    }
+  }
   const needsManager = ["create", "delete", "content", "title", "desc", "color", "footer", "thumb", "image", "type", "mode", "on", "off"].includes(sub);
 
   if (needsManager && !hasAutoResManagerRole(message)) {
-    return message.channel.send("<a:joe_deo:1543982900352000010> Bạn không có quyền AutoRes.");
+    return message.channel.send("⛔ Bạn không có quyền AutoRes.");
   }
 
   if (sub === "create") {
@@ -452,14 +469,14 @@ if (!sub) return message.channel.send({
       createdBy: message.author.id,
     });
     saveAutoRes(autoRes);
-    return message.channel.send(`<a:daucheck:1543227340648087614> Đã tạo AutoRes **${guildData[key].trigger}** dạng **${type}**.`);
+    return message.channel.send(`✅ Đã tạo AutoRes **${guildData[key].trigger}** dạng **${type}**.`);
   }
 
   if (sub === "list") {
     const entries = Object.values(guildData);
-    if (!entries.length) return message.channel.send("<a:bow3:1543226020512014427> Server chưa có AutoRes nào.");
-    const lines = entries.map((r, i) => `${i + 1}. ${r.enabled ? "<a:daucheck:1543227340648087614>" : "<a:dau_x:1543980848888549458>"} **${r.trigger}** — ${r.type} — ${r.mode}`);
-    return message.channel.send(`**<a:bow3:1543226020512014427> AutoRes (${entries.length})**\n${lines.join("\n")}`);
+    if (!entries.length) return message.channel.send("🤖 Server chưa có AutoRes nào.");
+    const lines = entries.map((r, i) => `${i + 1}. ${r.enabled ? "🟢" : "🔴"} **${r.trigger}** — ${r.type} — ${r.mode}`);
+    return message.channel.send(`**🤖 AutoRes (${entries.length})**\n${lines.join("\n")}`);
   }
 
   if (sub === "delete") {
@@ -468,7 +485,7 @@ if (!sub) return message.channel.send({
     removeLocalImage(record.embed.image);
     delete guildData[normalizeTrigger(trigger)];
     saveAutoRes(autoRes);
-    return message.channel.send(`<a:milk2:1543226670276808714> Đã xóa AutoRes **${record.trigger}**.`);
+    return message.channel.send(`🗑️ Đã xóa AutoRes **${record.trigger}**.`);
   }
 
   if (!record) return message.channel.send(`Không tìm thấy AutoRes. Dùng \`${prefix}ar list\` để xem danh sách.`);
@@ -476,7 +493,7 @@ if (!sub) return message.channel.send({
   if (sub === "on" || sub === "off") {
     record.enabled = sub === "on";
     saveAutoRes(autoRes);
-    return message.channel.send(`${record.enabled ? "<a:daucheck:1543227340648087614> Đã bật" : "<a:dau_x:1543980848888549458> Đã tắt"} AutoRes **${record.trigger}**.`);
+    return message.channel.send(`${record.enabled ? "🟢 Đã bật" : "🔴 Đã tắt"} AutoRes **${record.trigger}**.`);
   }
 
   if (sub === "type") {
@@ -484,7 +501,7 @@ if (!sub) return message.channel.send({
     if (!["text", "embed"].includes(type)) return message.channel.send(`Dùng: \`${prefix}ar type "hello" text|embed\``);
     record.type = type;
     saveAutoRes(autoRes);
-    return message.channel.send(`<a:daucheck:1543227340648087614> AutoRes **${record.trigger}** giờ là **${type}**.`);
+    return message.channel.send(`✅ AutoRes **${record.trigger}** giờ là **${type}**.`);
   }
 
   if (sub === "mode") {
@@ -492,13 +509,13 @@ if (!sub) return message.channel.send({
     if (!["exact", "contains"].includes(mode)) return message.channel.send(`Dùng: \`${prefix}ar mode "hello" exact|contains\``);
     record.mode = mode;
     saveAutoRes(autoRes);
-    return message.channel.send(`<a:daucheck:1543227340648087614> Trigger **${record.trigger}** dùng mode **${mode}**.`);
+    return message.channel.send(`✅ Trigger **${record.trigger}** dùng mode **${mode}**.`);
   }
 
   if (sub === "content") {
     record.content = args.slice(1).join(" ").trim();
     saveAutoRes(autoRes);
-    return message.channel.send(`<a:daucheck:1543227340648087614> Đã cập nhật nội dung AutoRes **${record.trigger}**.`);
+    return message.channel.send(`✅ Đã cập nhật nội dung AutoRes **${record.trigger}**.`);
   }
 
   if (sub === "title" || sub === "desc" || sub === "footer") {
@@ -506,16 +523,16 @@ if (!sub) return message.channel.send({
     const field = sub === "desc" ? "description" : sub;
     record.embed[field] = value;
     saveAutoRes(autoRes);
-    return message.channel.send(`<a:daucheck:1543227340648087614> Đã cập nhật ${field} cho **${record.trigger}**.`);
+    return message.channel.send(`✅ Đã cập nhật ${field} cho **${record.trigger}**.`);
   }
 
   if (sub === "color") {
     const value = (args[1] || "").trim().toLowerCase();
     if (value === "reset") record.embed.color = 0x5865f2;
     else if (/^#?[0-9a-f]{6}$/i.test(value)) record.embed.color = parseInt(value.replace("#", ""), 16);
-    else return message.channel.send(`Dùng: \`${prefix}ar color "hello" #HEXCOLOR\` hoặc \`reset\``);
+    else return message.channel.send(`Dùng: \`${prefix}ar color "hello" #ff69b4\` hoặc \`reset\``);
     saveAutoRes(autoRes);
-    return message.channel.send(`<a:butmau:1543977031153356912> Đã cập nhật màu AutoRes **${record.trigger}**.`);
+    return message.channel.send(`🎨 Đã cập nhật màu AutoRes **${record.trigger}**.`);
   }
 
   if (sub === "thumb" || sub === "image") {
@@ -528,16 +545,14 @@ if (!sub) return message.channel.send({
       record.embed[field] = stored;
       removeLocalImage(old);
       saveAutoRes(autoRes);
-      return message.channel.send(`<a:daucheck:1543227340648087614> Đã cập nhật ${sub === "thumb" ? "thumbnail" : "image"} cho AutoRes **${record.trigger}**.`);
+      return message.channel.send(`✅ Đã cập nhật ${sub === "thumb" ? "thumbnail" : "image"} cho AutoRes **${record.trigger}**.`);
     } catch (error) {
       console.error(error);
-      return message.channel.send("<a:milk1:1543226643961610352> Không thể lưu ảnh AutoRes.");
+      return message.channel.send("❌ Không thể lưu ảnh AutoRes.");
     }
   }
 
-return message.channel.send({
-    embeds: [autoResHelp(message)]
-});
+  return message.channel.send(autoResHelp());
 }
 
 //autores: slash command "/ar" — tạo bằng modal, còn lại bằng option
@@ -583,20 +598,20 @@ async function handleAutoResCreateModal(interaction) {
   const token = interaction.customId.slice("ar_create_modal:".length);
   const pending = pendingAutoResCreates.get(token);
   if (!pending) {
-    await interaction.reply({ content: "<a:milk1:1543226643961610352> Phiên tạo AutoRes đã hết hạn. Hãy dùng lại `/ar create`.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "❌ Phiên tạo AutoRes đã hết hạn. Hãy dùng lại `/ar create`.", flags: MessageFlags.Ephemeral });
     return true;
   }
   pendingAutoResCreates.delete(token);
 
   if (pending.userId !== interaction.user.id || pending.guildId !== interaction.guildId) {
-    await interaction.reply({ content: "<a:joe_deo:1543982900352000010> Bạn không thể dùng form AutoRes này.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "⛔ Bạn không thể dùng form AutoRes này.", flags: MessageFlags.Ephemeral });
     return true;
   }
 
   const guildData = getGuildAutoRes(interaction.guild.id);
   const key = normalizeTrigger(pending.trigger);
   if (guildData[key]) {
-    await interaction.reply({ content: "<:pink_warning:1543983381279146055> AutoRes này đã tồn tại.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "⚠️ AutoRes này đã tồn tại.", flags: MessageFlags.Ephemeral });
     return true;
   }
 
@@ -611,7 +626,7 @@ async function handleAutoResCreateModal(interaction) {
     if (colorValue === "reset") color = 0x5865f2;
     else if (/^#?[0-9a-f]{6}$/i.test(colorValue)) color = parseInt(colorValue.replace("#", ""), 16);
     else {
-      await interaction.reply({ content: "<a:milk1:1543226643961610352> Màu không hợp lệ. Dùng `#ff69b4` hoặc để trống.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "❌ Màu không hợp lệ. Dùng `#ff69b4` hoặc để trống.", flags: MessageFlags.Ephemeral });
       return true;
     }
   }
@@ -629,7 +644,7 @@ async function handleAutoResCreateModal(interaction) {
   saveAutoRes(autoRes);
 
   await interaction.reply({
-    content: `<a:daucheck:1543227340648087614> Đã tạo AutoRes **${pending.trigger}** dạng **${pending.type}**${content ? " và đã đặt content." : "."}`,
+    content: `✅ Đã tạo AutoRes **${pending.trigger}** dạng **${pending.type}**${content ? " và đã đặt content." : "."}`,
     flags: MessageFlags.Ephemeral,
   });
   return true;
@@ -638,7 +653,7 @@ async function handleAutoResCreateModal(interaction) {
 async function handleAutoResSlash(interaction) {
   if (!interaction.isChatInputCommand() || interaction.commandName !== "ar") return false;
   if (!interaction.guild) {
-    await interaction.reply({ content: "<a:milk1:1543226643961610352> Lệnh này chỉ dùng trong server.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "❌ Lệnh này chỉ dùng trong server.", flags: MessageFlags.Ephemeral });
     return true;
   }
 
@@ -647,7 +662,7 @@ async function handleAutoResSlash(interaction) {
   if (managerActions.includes(action)) {
     const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => interaction.member);
     if (!hasAutoResManagerRole({ guild: interaction.guild, member })) {
-      await interaction.reply({ content: "<a:joe_deo:1543982900352000010> Bạn không có quyền AutoRes.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "⛔ Bạn không có quyền AutoRes.", flags: MessageFlags.Ephemeral });
       return true;
     }
   }
@@ -657,11 +672,11 @@ async function handleAutoResSlash(interaction) {
   if (action === "list") {
     const entries = Object.values(guildData);
     if (!entries.length) {
-      await interaction.reply("<a:hok:1528801736448409632> Server chưa có AutoRes nào.");
+      await interaction.reply("🤖 Server chưa có AutoRes nào.");
       return true;
     }
-    const lines = entries.map((r, i) => `${i + 1}. ${r.enabled ? "<a:daucheck:1543227340648087614>" : "<a:dau_x:1543980848888549458>"} **${r.trigger}** — ${r.type} — ${r.mode}`);
-    await interaction.reply(`**<a:hok:1528801736448409632> AutoRes (${entries.length})**\n${lines.join("\n")}`);
+    const lines = entries.map((r, i) => `${i + 1}. ${r.enabled ? "🟢" : "🔴"} **${r.trigger}** — ${r.type} — ${r.mode}`);
+    await interaction.reply(`**🤖 AutoRes (${entries.length})**\n${lines.join("\n")}`);
     return true;
   }
 
@@ -672,11 +687,11 @@ async function handleAutoResSlash(interaction) {
   if (action === "create") {
     const type = interaction.options.getString("type", true);
     if (!key) {
-      await interaction.reply({ content: "<a:milk1:1543226643961610352> Trigger không được để trống.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "❌ Trigger không được để trống.", flags: MessageFlags.Ephemeral });
       return true;
     }
     if (guildData[key]) {
-      await interaction.reply({ content: "<:pink_warning:1543983381279146055>  AutoRes này đã tồn tại.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "⚠️ AutoRes này đã tồn tại.", flags: MessageFlags.Ephemeral });
       return true;
     }
 
@@ -695,7 +710,7 @@ async function handleAutoResSlash(interaction) {
   }
 
   if (!record) {
-    await interaction.reply({ content: "<a:milk1:1543226643961610352> Không tìm thấy AutoRes. Dùng `/ar list` để xem danh sách.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "❌ Không tìm thấy AutoRes. Dùng `/ar list` để xem danh sách.", flags: MessageFlags.Ephemeral });
     return true;
   }
 
@@ -704,14 +719,14 @@ async function handleAutoResSlash(interaction) {
     removeLocalImage(record.embed.image);
     delete guildData[normalizeTrigger(record.trigger)];
     saveAutoRes(autoRes);
-    await interaction.reply(`<a:milk2:1543226670276808714> Đã xóa AutoRes **${record.trigger}**.`);
+    await interaction.reply(`🗑️ Đã xóa AutoRes **${record.trigger}**.`);
     return true;
   }
 
   if (action === "on" || action === "off") {
     record.enabled = action === "on";
     saveAutoRes(autoRes);
-    await interaction.reply(`${record.enabled ? "<a:daucheck:1543227340648087614> Đã bật" : "<a:dau_x:1543980848888549458> Đã tắt"} AutoRes **${record.trigger}**.`);
+    await interaction.reply(`${record.enabled ? "🟢 Đã bật" : "🔴 Đã tắt"} AutoRes **${record.trigger}**.`);
     return true;
   }
 
@@ -739,7 +754,7 @@ async function handleAutoResSlash(interaction) {
       if (value === "reset") record.embed.color = 0x5865f2;
       else if (/^#?[0-9a-f]{6}$/i.test(value)) record.embed.color = parseInt(value.replace("#", ""), 16);
       else {
-        await interaction.reply({ content: "<a:milk1:1543226643961610352> Màu không hợp lệ. Ví dụ `#ff69b4` hoặc `reset`.", flags: MessageFlags.Ephemeral });
+        await interaction.reply({ content: "❌ Màu không hợp lệ. Ví dụ `#ff69b4` hoặc `reset`.", flags: MessageFlags.Ephemeral });
         return true;
       }
       changed.push("color");
@@ -760,18 +775,17 @@ async function handleAutoResSlash(interaction) {
       }
     } catch (error) {
       console.error(error);
-      await interaction.reply({ content: "<a:milk1:1543226643961610352> Không thể lưu ảnh AutoRes.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "❌ Không thể lưu ảnh AutoRes.", flags: MessageFlags.Ephemeral });
       return true;
     }
 
     if (!changed.length) {
-      await interaction.reply({ content: "<a:ghichep:1543982509623083149> Không có thông tin nào được thay đổi.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "ℹ️ Không có thông tin nào được thay đổi.", flags: MessageFlags.Ephemeral });
       return true;
     }
 
     saveAutoRes(autoRes);
-    await interaction.reply(`<a:daucheck:1543227340648087614>
- Đã cập nhật **${record.trigger}**: ${changed.join(", ")}.`);
+    await interaction.reply(`✅ Đã cập nhật **${record.trigger}**: ${changed.join(", ")}.`);
     return true;
   }
 
@@ -917,7 +931,7 @@ async function finishGiveaway(channel, messageId, title, creator, winnerCount, g
             embeds: [endedEmbed] 
         }).catch(() => {});
 
-        await giveawayMsg.reply("<a:milk1:1543226643961610352> Không có ai tham gia giveaway này!");
+        await giveawayMsg.reply("❌ Không có ai tham gia giveaway này!");
         activeGiveaways.delete(messageId);
         return;
     }
@@ -1044,7 +1058,8 @@ client.on("messageCreate", async (message) => {
 
     //autores: lệnh prefix "${prefix}ar <sub> ..."
     if (command === "ar") {
-        return handleAutoResCommand(message, parseAutoResArgs(message.content.slice(prefix.length + command.length).trim()));
+        const arRest = message.content.slice(prefix.length).trim().slice(command.length).trim();
+        return handleAutoResCommand(message, parseAutoResArgs(arRest));
     }
 
     // ban
@@ -1053,13 +1068,13 @@ client.on("messageCreate", async (message) => {
         if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers))
             return tempReply(
                 message,
-                `<a:milk1:1543226643961610352> Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cấm thành viên.`
+                `❌ Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cấm thành viên.`
             );
 
         const member = message.mentions.members.first();
 
         if (!member)
-            return tempReply(message, "<a:milk1:1543226643961610352> Hãy mention người cần ban.");
+            return tempReply(message, "❌ Hãy mention người cần ban.");
 
         const reason = args.slice(1).join(" ") || "Không có lý do.";
 
@@ -1083,13 +1098,13 @@ client.on("messageCreate", async (message) => {
         if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers))
             return tempReply(
                 message,
-                `<a:milk1:1543226643961610352> Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cấm thành viên (Unban).`
+                `❌ Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cấm thành viên (Unban).`
             );
 
         const userId = args[0];
 
         if (!userId)
-            return tempReply(message, "<a:milk1:1543226643961610352> Hãy nhập ID của người cần unban. (Ví dụ: `hunban 123456789012345678`)");
+            return tempReply(message, "❌ Hãy nhập ID của người cần unban. (Ví dụ: `hunban 123456789012345678`)");
 
         const reason = args.slice(1).join(" ") || "Không có lý do.";
 
@@ -1107,7 +1122,7 @@ client.on("messageCreate", async (message) => {
 
             return message.reply({ embeds: [embed] });
         } catch (error) {
-            return tempReply(message, "<a:milk1:1543226643961610352> Không tìm thấy ID này trong danh sách bị ban hoặc ID không hợp lệ!");
+            return tempReply(message, "❌ Không tìm thấy ID này trong danh sách bị ban hoặc ID không hợp lệ!");
         }
     }
 
@@ -1117,13 +1132,13 @@ client.on("messageCreate", async (message) => {
               if (!message.member.permissions.has(PermissionsBitField.Flags.KickMembers))
             return tempReply(
                 message,
-                `<a:milk1:1543226643961610352> Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Kick thành viên (kick).`
+                `❌ Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Kick thành viên (kick).`
             );
 
         const member = message.mentions.members.first();
 
         if (!member)
-            return tempReply(message, "<a:milk1:1543226643961610352> Hãy mention người cần kick.");
+            return tempReply(message, "❌ Hãy mention người cần kick.");
 
         const reason = args.slice(1).join(" ") || "Không có lý do.";
 
@@ -1147,20 +1162,20 @@ if (command === "mute") {
     if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers))
         return tempReply(
             message,
-            `<a:milk1:1543226643961610352> Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Hạn chế thành viên`
+            `❌ Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Hạn chế thành viên`
         );
 
     const member = message.mentions.members.first();
 
     if (!member)
-        return tempReply(message, "<a:milk1:1543226643961610352> Hãy mention người cần mute.");
+        return tempReply(message, "❌ Hãy mention người cần mute.");
 
     const timeArg = args[1];
 
     if (!timeArg)
         return tempReply(
             message,
-            "<a:milk1:1543226643961610352> Hãy nhập thời gian.\nVí dụ: `hmute @user 30s`, `hmute @user 10m`, `hmute @user 36h`."
+            "❌ Hãy nhập thời gian.\nVí dụ: `hmute @user 30s`, `hmute @user 10m`, `hmute @user 36h`."
         );
 
     // Hỗ trợ: s = giây, m = phút, h = giờ
@@ -1169,7 +1184,7 @@ if (command === "mute") {
     if (!match)
         return tempReply(
             message,
-            "<a:milk1:1543226643961610352> Thời gian không hợp lệ.\nDùng `s` = giây, `m` = phút, `h` = giờ."
+            "❌ Thời gian không hợp lệ.\nDùng `s` = giây, `m` = phút, `h` = giờ."
         );
 
     const amount = Number(match[1]);
@@ -1192,7 +1207,7 @@ if (command === "mute") {
     ) {
         return tempReply(
             message,
-            "<a:milk1:1543226643961610352> Thời gian mute phải từ 1 giây đến tối đa 28 ngày."
+            "❌ Thời gian mute phải từ 1 giây đến tối đa 28 ngày."
         );
     }
 
@@ -1239,7 +1254,7 @@ if (command === "mute") {
 
         return tempReply(
             message,
-            "<a:milk1:1543226643961610352> Không thể mute thành viên này. Hãy kiểm tra quyền `Moderate Members` và vị trí role của bot."
+            "❌ Không thể mute thành viên này. Hãy kiểm tra quyền `Moderate Members` và vị trí role của bot."
         );
     }
 }
@@ -1250,13 +1265,13 @@ if (command === "mute") {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers))
             return tempReply(
                 message,
-                `<a:milk1:1543226643961610352> Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Hạn chế thành viên (Moderate Members)`
+                `❌ Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Hạn chế thành viên (Moderate Members)`
             );
 
         const member = message.mentions.members.first();
 
         if (!member)
-            return tempReply(message, "<a:milk1:1543226643961610352> Hãy mention người cần unmute.");
+            return tempReply(message, "❌ Hãy mention người cần unmute.");
 
         const reason = args.slice(1).join(" ") || "Không có lý do.";
 
@@ -1288,7 +1303,7 @@ if (command === "mute") {
 
             return tempReply(
                 message,
-                "<a:milk1:1543226643961610352> Không thể unmute thành viên này. Hãy kiểm tra quyền `Moderate Members` và vị trí role của bot."
+                "❌ Không thể unmute thành viên này. Hãy kiểm tra quyền `Moderate Members` và vị trí role của bot."
             );
         }
     }
@@ -1299,13 +1314,13 @@ if (command === "mute") {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers))
             return tempReply(
                 message,
-                `<a:milk1:1543226643961610352> Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cảnh báo thành viên`
+                `❌ Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cảnh báo thành viên`
             );
 
         const member = message.mentions.members.first();
 
         if (!member)
-            return tempReply(message, "<a:milk1:1543226643961610352> Hãy mention người cần warn.");
+            return tempReply(message, "❌ Hãy mention người cần warn.");
 
         const reason = args.slice(1).join(" ") || "Không có lý do.";
 
@@ -1322,7 +1337,7 @@ if (command === "mute") {
 
         const embed = new EmbedBuilder()
             .setColor("#481f86")
-            .setTitle("<:pink_warning:1543983381279146055>  Thành viên đã bị cảnh cáo")
+            .setTitle("⚠️ Thành viên đã bị cảnh cáo")
             .setDescription(`${member} đã nhận một cảnh cáo.`)
             .addFields(
                 { name: "<a:camap:1529737268892274890> Moderator", value: message.author.tag, inline: true },
@@ -1339,21 +1354,21 @@ if (command === "mute") {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers))
             return tempReply(
                 message,
-                `<a:milk1:1543226643961610352> Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cảnh báo thành viên`
+                `❌ Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cảnh báo thành viên`
             );
 
         const member = message.mentions.members.first();
 
         if (!member)
-            return tempReply(message, "<a:milk1:1543226643961610352> Hãy mention người cần xóa warn.");
+            return tempReply(message, "❌ Hãy mention người cần xóa warn.");
 
         if (!warns[member.id] || warns[member.id].length === 0)
-            return tempReply(message, "<a:milk1:1543226643961610352> Thành viên này không có warn nào để xóa.");
+            return tempReply(message, "❌ Thành viên này không có warn nào để xóa.");
 
         const index = parseInt(args[1]) - 1;
 
         if (isNaN(index) || index < 0 || !warns[member.id][index])
-            return tempReply(message, `<a:milk1:1543226643961610352> Hãy dùng \`${prefix}hcwarn @user\` để xem đúng số thứ tự.`);
+            return tempReply(message, `❌ Số thứ tự warn không hợp lệ. Hãy dùng \`${prefix}hcwarn @user\` để xem đúng số thứ tự.`);
 
         const removed = warns[member.id].splice(index, 1)[0];
 
@@ -1365,7 +1380,7 @@ if (command === "mute") {
 
         const embed = new EmbedBuilder()
             .setColor("#481f86")
-            .setTitle("<a:milk2:1543226670276808714> Xóa cảnh cáo thành công")
+            .setTitle("🗑️ Xóa cảnh cáo thành công")
             .setDescription(`Đã xóa cảnh cáo số **${index + 1}** của ${member}.`)
             .addFields(
                 { name: "📝 Lý do cũ", value: removed.reason, inline: true },
@@ -1396,7 +1411,7 @@ if (command === "mute") {
 
         warns[member.id].forEach((w, index) => {
             embed.addFields({
-                name: `<:pink_warning:1543983381279146055>  Lần ${index + 1}`,
+                name: `⚠️ Lần ${index + 1}`,
                 value: `**Lý do:** ${w.reason}\n**Moderator:** ${w.moderator}\n**Thời gian:** ${w.date}`
             });
         });
@@ -1410,7 +1425,7 @@ if (command === "mute") {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
             const errEmbed = new EmbedBuilder()
                 .setColor("#ff0000")
-                .setTitle("<a:milk1:1543226643961610352> Không có quyền")
+                .setTitle("❌ Không có quyền")
                 .setDescription(
                     "Bạn không có quyền để sử dụng lệnh này!\n\n" +
                     "📌 Quyền hạn: Quản lý kênh (Manage Channels)."
@@ -1425,7 +1440,7 @@ if (command === "mute") {
         if (!botMember.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
             const errEmbed = new EmbedBuilder()
                 .setColor("#ff0000")
-                .setTitle("<a:milk1:1543226643961610352> Bot thiếu quyền")
+                .setTitle("❌ Bot thiếu quyền")
                 .setDescription("Bot cần quyền **Manage Channels** để khóa kênh.");
 
             return message.reply({ embeds: [errEmbed] });
@@ -1462,7 +1477,7 @@ if (command === "mute") {
             console.error("[LOCK ERROR]", error);
             const errEmbed = new EmbedBuilder()
                 .setColor("#ff0000")
-                .setTitle("<a:milk1:1543226643961610352> Không thể khóa kênh")
+                .setTitle("❌ Không thể khóa kênh")
                 .setDescription("Đã xảy ra lỗi khi khóa kênh này.");
 
             return message.reply({ embeds: [errEmbed] });
@@ -1475,7 +1490,7 @@ if (command === "mute") {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
             const errEmbed = new EmbedBuilder()
                 .setColor("#ff0000")
-                .setTitle("<a:milk1:1543226643961610352> Không có quyền")
+                .setTitle("❌ Không có quyền")
                 .setDescription(
                     "Bạn không có quyền để sử dụng lệnh này!\n\n" +
                     "📌 Quyền hạn: Quản lý kênh (Manage Channels)."
@@ -1490,7 +1505,7 @@ if (command === "mute") {
         if (!botMember.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
             const errEmbed = new EmbedBuilder()
                 .setColor("#ff0000")
-                .setTitle("<a:milk1:1543226643961610352> Bot thiếu quyền")
+                .setTitle("❌ Bot thiếu quyền")
                 .setDescription("Bot cần quyền **Manage Channels** để mở khóa kênh.");
 
             return message.reply({ embeds: [errEmbed] });
@@ -1527,7 +1542,7 @@ if (command === "mute") {
             console.error("[UNLOCK ERROR]", error);
             const errEmbed = new EmbedBuilder()
                 .setColor("#ff0000")
-                .setTitle("<a:milk1:1543226643961610352> Không thể mở khóa kênh")
+                .setTitle("❌ Không thể mở khóa kênh")
                 .setDescription("Đã xảy ra lỗi khi mở khóa kênh này.");
 
             return message.reply({ embeds: [errEmbed] });
@@ -1538,19 +1553,19 @@ if (command === "mute") {
     if (command === "gastart") {
 
         if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages))
-            return tempReply(message, "<a:milk1:1543226643961610352> Bạn không có quyền quản lý tin nhắn để tạo giveaway!");
+            return tempReply(message, "❌ Bạn không có quyền quản lý tin nhắn để tạo giveaway!");
 
         const timeArg = args[0];
         const winArg = args[1];
         const title = args.slice(2).join(" ");
 
         if (!timeArg || !winArg || !title)
-            return tempReply(message, `<a:milk1:1543226643961610352> Sai cú pháp! Hãy sử dụng: \`${prefix}gastart <time> <win> <title>\`!`);
+            return tempReply(message, `❌ Sai cú pháp! Hãy sử dụng: \`${prefix}gastart <time> <win> <title>\`!`);
 
         const timeRegex = /^(\d+)([smhd])$/i;
         const match = timeArg.match(timeRegex);
         if (!match)
-            return tempReply(message, "<a:milk1:1543226643961610352> Thời gian không hợp lệ! Dùng định dạng như: `30s`, `5m`, `2h`, `1d`.");
+            return tempReply(message, "❌ Thời gian không hợp lệ! Dùng định dạng như: `30s`, `5m`, `2h`, `1d`.");
 
         const value = parseInt(match[1]);
         const unit = match[2].toLowerCase();
@@ -1561,11 +1576,11 @@ if (command === "mute") {
         else if (unit === 'h') ms = value * 60 * 60 * 1000;
         else if (unit === 'd') ms = value * 24 * 60 * 60 * 1000;
 
-        if (ms <= 0) return tempReply(message, "<a:milk1:1543226643961610352> Thời gian phải lớn hơn 0!");
+        if (ms <= 0) return tempReply(message, "❌ Thời gian phải lớn hơn 0!");
 
         const winnerCount = parseInt(winArg.replace(/w/gi, ''));
         if (isNaN(winnerCount) || winnerCount <= 0)
-            return tempReply(message, "<a:milk1:1543226643961610352> Số lượng người thắng không hợp lệ! (Ví dụ: `1` hoặc `1w`)");
+            return tempReply(message, "❌ Số lượng người thắng không hợp lệ! (Ví dụ: `1` hoặc `1w`)");
 
         message.delete().catch(() => {});
 
@@ -1615,44 +1630,44 @@ if (command === "mute") {
     // ga stop
     if (command === "gastop") {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages))
-            return tempReply(message, "<a:milk1:1543226643961610352> Bạn không có quyền quản lý tin nhắn để dừng giveaway!");
+            return tempReply(message, "❌ Bạn không có quyền quản lý tin nhắn để dừng giveaway!");
 
         const messageId = args[0];
         if (!messageId)
-            return tempReply(message, `<a:milk1:1543226643961610352> Vui lòng nhập ID tin nhắn của giveaway! (Ví dụ: \`${prefix}gastop <message_id>\`)`);
+            return tempReply(message, `❌ Vui lòng nhập ID tin nhắn của giveaway! (Ví dụ: \`${prefix}gastop <message_id>\`)`);
 
         const gaData = activeGiveaways.get(messageId);
         if (!gaData)
-            return tempReply(message, "<a:milk1:1543226643961610352> Không tìm thấy giveaway đang chạy với ID này (hoặc giveaway này đã kết thúc trước đó).");
+            return tempReply(message, "❌ Không tìm thấy giveaway đang chạy với ID này (hoặc giveaway này đã kết thúc trước đó).");
 
         clearTimeout(gaData.timeoutId);
 
         const channel = await client.channels.fetch(gaData.channelId).catch(() => null);
         if (!channel) {
             activeGiveaways.delete(messageId);
-            return tempReply(message, "<a:milk1:1543226643961610352> Không tìm thấy kênh chứa giveaway này.");
+            return tempReply(message, "❌ Không tìm thấy kênh chứa giveaway này.");
         }
 
         await finishGiveaway(channel, messageId, gaData.title, gaData.creator, gaData.winnerCount, gaData.giveawayMsg);
-        return tempReply(message, "<a:daucheck:1543227340648087614> Đã dừng giveaway và công bố người chiến thắng thành công!");
+        return tempReply(message, "✅ Đã dừng giveaway và công bố người chiến thắng thành công!");
     }
 
     // ga rr
     if (command === "gareroll") {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages))
-            return tempReply(message, "<a:milk1:1543226643961610352> Bạn không có quyền quản lý tin nhắn để quay lại người thắng giveaway!");
+            return tempReply(message, "❌ Bạn không có quyền quản lý tin nhắn để quay lại người thắng giveaway!");
 
         const messageId = args[0];
         if (!messageId)
-            return tempReply(message, `<a:milk1:1543226643961610352> Vui lòng nhập ID tin nhắn của giveaway! (Ví dụ: \`${prefix}gareroll <message_id>\`)`);
+            return tempReply(message, `❌ Vui lòng nhập ID tin nhắn của giveaway! (Ví dụ: \`${prefix}gareroll <message_id>\`)`);
 
         const fetchedMsg = await message.channel.messages.fetch(messageId).catch(() => null);
         if (!fetchedMsg)
-            return tempReply(message, "<a:milk1:1543226643961610352> Không tìm thấy tin nhắn giveaway với ID này trong kênh hiện tại.");
+            return tempReply(message, "❌ Không tìm thấy tin nhắn giveaway với ID này trong kênh hiện tại.");
 
         const embed = fetchedMsg.embeds[0];
         if (!embed)
-            return tempReply(message, "<a:milk1:1543226643961610352> Tin nhắn này không chứa thông tin giveaway hợp lệ.");
+            return tempReply(message, "❌ Tin nhắn này không chứa thông tin giveaway hợp lệ.");
 
         const title = embed.title || "Giveaway";
         
@@ -1662,13 +1677,13 @@ if (command === "mute") {
 
         const reaction = fetchedMsg.reactions.cache.get("1531654953461088447") || fetchedMsg.reactions.cache.first();
         if (!reaction)
-            return tempReply(message, "<a:milk1:1543226643961610352> Không tìm thấy lượt tương tác (reaction) nào trên tin nhắn này.");
+            return tempReply(message, "❌ Không tìm thấy lượt tương tác (reaction) nào trên tin nhắn này.");
 
         const users = await reaction.users.fetch();
         const participantArray = Array.from(users.filter(u => !u.bot).keys());
 
         if (participantArray.length === 0)
-            return tempReply(message, "<a:milk1:1543226643961610352> Không có người tham gia hợp lệ nào trong giveaway này để quay lại!");
+            return tempReply(message, "❌ Không có người tham gia hợp lệ nào trong giveaway này để quay lại!");
 
         const randomUserId = participantArray[Math.floor(Math.random() * participantArray.length)];
         const winnerMention = `<@${randomUserId}>`;
@@ -1682,7 +1697,7 @@ if (command === "mute") {
         const targetUser = repliedMessage ? repliedMessage.author : (message.mentions.users.first() || message.author);
 
         if (targetUser.bot)
-            return tempReply(message, "<a:milk1:1543226643961610352> Không thể yêu cầu xem avatar của bot!");
+            return tempReply(message, "❌ Không thể yêu cầu xem avatar của bot!");
 
         // soi av cua minh
         if (targetUser.id === message.author.id) {
@@ -1736,7 +1751,7 @@ else if (command === "role") {
     if (!message.member.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
         const errEmbed = new EmbedBuilder()
             .setColor("#ff0000")
-            .setTitle("<a:milk1:1543226643961610352> Không có quyền")
+            .setTitle("❌ Không có quyền")
             .setDescription(
                 "Bạn không có quyền để sử dụng lệnh này!\n\n" +
                 "📌 Quyền hạn: Quản lý vai trò (Manage Roles)."
@@ -1910,80 +1925,6 @@ else if (command === "role") {
     }
 }
 
-// ===== STEAL EMOJI / STICKER VỚI TÊN TÙY CHỈNH =====
-    else if (command === 'steal') {
-        if (message.author.id !== OWNER_ID && !message.member.permissions.has(PermissionsBitField.Flags.ManageEmojisAndStickers)) {
-            return message.reply("⚠️ Bạn không có quyền dùng lệnh steal emoji/sticker!");
-        }
-
-        let targetMsg = message;
-        if (message.reference) {
-            targetMsg = await message.fetchReference().catch(() => message);
-        }
-
-        // 1. XỬ LÝ NẾU LÀ STICKER
-        const sticker = targetMsg.stickers.first() || message.stickers.first();
-        if (sticker) {
-            let stickerName = args[0] ? args.join("_") : (sticker.name || "stolen_sticker");
-            try {
-                await message.guild.stickers.create({
-                    file: sticker.url,
-                    name: stickerName
-                });
-                return message.reply(`✅ Đã thêm sticker với tên **${stickerName}** vào server thành công!`);
-            } catch (error) {
-                console.error(error);
-                return message.reply("❌ Không thể thêm sticker này!");
-            }
-        }
-
-        // 2. XỬ LÝ EMOJI
-        const textToCheck = targetMsg.content + " " + message.content;
-        const emojiRegex = /<a?:([a-zA-Z0-9_]+):([0-9]+)>/g;
-        const matches = [...textToCheck.matchAll(emojiRegex)];
-
-        if (matches.length === 0) {
-            return message.reply("⚠️ Không tìm thấy emoji nào! Hãy dùng cú pháp: `hsteal <emoji> <tên_mới>` hoặc reply vào tin nhắn chứa emoji.");
-        }
-
-        const match = matches[0];
-        const originalName = match[1];
-        const emojiId = match[2];
-        const animated = match[0].startsWith('<a:');
-        const extension = animated ? 'gif' : 'png';
-        const emojiUrl = `https://cdn.discordapp.com/emojis/${emojiId}.${extension}`;
-
-        // Xác định tên mới do người dùng truyền vào
-        let newName = originalName;
-        if (args.length > 0) {
-            // Kiểm tra xem arg đầu tiên có phải là chuỗi chứa emoji hay không
-            const hasEmojiInArg0 = emojiRegex.test(args[0]);
-            if (hasEmojiInArg0) {
-                // Trường hợp: hsteal <emoji> tên_mới_ở_đây
-                if (args.length > 1) {
-                    newName = args.slice(1).join("_");
-                }
-            } else {
-                // Trường hợp: Reply tin nhắn rồi gõ hsteal tên_mới_ở_đây
-                newName = args.join("_");
-            }
-        }
-
-        // Làm sạch tên (Discord chỉ cho phép chữ cái, số và dấu gạch dưới _)
-        newName = newName.replace(/[^a-zA-Z0-9_]/g, '_');
-        if (newName.length < 2) newName = originalName;
-
-        try {
-            const createdEmoji = await message.guild.emojis.create({
-                attachment: emojiUrl,
-                name: newName
-            });
-            return message.reply(`✅ Đã steal thành công emoji thành ${createdEmoji} với tên mới: \`${newName}\`!`);
-        } catch (error) {
-            console.error(error);
-            return message.reply("❌ Không thể thêm emoji! (Có thể server đã đầy slot emoji hoặc tên không hợp lệ).");
-        }
-    }
 
     // help
     if (command === "help") {
@@ -2152,7 +2093,7 @@ client.on("interactionCreate", async (interaction) => {
 
             if (interaction.user.id !== targetUserId) {
                 return interaction.reply({
-                    content: "<a:milk1:1543226643961610352> Bạn không phải là người được yêu cầu xem avatar nên không thể bấm nút này!",
+                    content: "❌ Bạn không phải là người được yêu cầu xem avatar nên không thể bấm nút này!",
                     ephemeral: true
                 });
             }
@@ -2182,7 +2123,7 @@ client.on("interactionCreate", async (interaction) => {
                 const deniedEmbed = new EmbedBuilder()
                     .setColor("#ff4d4d")
                     .setTitle("Yêu cầu xem avatar")
-                    .setDescription(`<a:milk1:1543226643961610352> ${interaction.user} đã **từ chối** yêu cầu xem avatar từ <@${requesterId}>`)
+                    .setDescription(`❌ ${interaction.user} đã **từ chối** yêu cầu xem avatar từ <@${requesterId}>`)
                     .setTimestamp();
 
                 return interaction.update({
@@ -2216,30 +2157,30 @@ client.on("interactionCreate", async (interaction) => {
                 .setTimestamp();
 
             if (type === "uavatar") {
-                if (!fetchedTarget) return interaction.reply({ content: "<a:milk1:1543226643961610352> Không tìm thấy thông tin người dùng!", ephemeral: true });
+                if (!fetchedTarget) return interaction.reply({ content: "❌ Không tìm thấy thông tin người dùng!", ephemeral: true });
                 newEmbed.setTitle(`Avatar cá nhân của ${fetchedTarget.tag}`);
                 newEmbed.setImage(fetchedTarget.displayAvatarURL({ size: 1024, dynamic: true }));
             } 
             else if (type === "ubanner") {
-                if (!fetchedTarget) return interaction.reply({ content: "<a:milk1:1543226643961610352> Không tìm thấy thông tin người dùng!", ephemeral: true });
+                if (!fetchedTarget) return interaction.reply({ content: "❌ Không tìm thấy thông tin người dùng!", ephemeral: true });
                 const bannerURL = fetchedTarget.bannerURL({ size: 1024, dynamic: true });
                 if (!bannerURL) {
-                    return interaction.reply({ content: `<a:milk1:1543226643961610352> Người dùng **${fetchedTarget.tag}** không có banner cá nhân!`, ephemeral: true });
+                    return interaction.reply({ content: `❌ Người dùng **${fetchedTarget.tag}** không có banner cá nhân!`, ephemeral: true });
                 }
                 newEmbed.setTitle(`Banner cá nhân của ${fetchedTarget.tag}`);
                 newEmbed.setImage(bannerURL);
             } 
             else if (type === "savatar") {
-                if (!member) return interaction.reply({ content: "<a:milk1:1543226643961610352> Không tìm thấy thành viên này trong server!", ephemeral: true });
+                if (!member) return interaction.reply({ content: "❌ Không tìm thấy thành viên này trong server!", ephemeral: true });
                 const serverAvatar = member.displayAvatarURL({ size: 1024, dynamic: true });
                 newEmbed.setTitle(`Server Avatar của ${member.user.tag}`);
                 newEmbed.setImage(serverAvatar);
             } 
             else if (type === "sbanner") {
-                if (!member) return interaction.reply({ content: "<a:milk1:1543226643961610352> Không tìm thấy thành viên này trong server!", ephemeral: true });
+                if (!member) return interaction.reply({ content: "❌ Không tìm thấy thành viên này trong server!", ephemeral: true });
                 const serverBanner = member.bannerURL({ size: 1024, dynamic: true });
                 if (!serverBanner) {
-                    return interaction.reply({ content: `<a:milk1:1543226643961610352> Thành viên **${member.user.tag}** không có Server Banner riêng trong server này!`, ephemeral: true });
+                    return interaction.reply({ content: `❌ Thành viên **${member.user.tag}** không có Server Banner riêng trong server này!`, ephemeral: true });
                 }
                 newEmbed.setTitle(`Server Banner của ${member.user.tag}`);
                 newEmbed.setImage(serverBanner);
