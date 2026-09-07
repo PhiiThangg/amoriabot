@@ -382,25 +382,28 @@ function findMatchingAutoRes(guildId, content) {
 }
 
 //autores: help + lệnh prefix "${prefix}ar <sub> ..."
-function autoResHelp() {
-  return [
-    "**🤖 AUTORES**",
-    `\`${prefix}ar create "hello" text|embed\` — tạo trigger mới`,
-    `\`${prefix}ar content "hello" nội dung\` — sửa nội dung (text)`,
-    `\`${prefix}ar title "hello" tiêu đề\` — sửa title (embed)`,
-    `\`${prefix}ar desc "hello" mô tả\` — sửa description (embed)`,
-    `\`${prefix}ar color "hello" #ff69b4\` — sửa màu embed`,
-    `\`${prefix}ar footer "hello" footer\` — sửa footer (embed)`,
-    `\`${prefix}ar thumb "hello"\` + ảnh — sửa thumbnail (embed)`,
-    `\`${prefix}ar image "hello"\` + ảnh — sửa ảnh lớn (embed)`,
-    `\`${prefix}ar type "hello" text|embed\` — đổi loại`,
-    `\`${prefix}ar mode "hello" exact|contains\` — đổi cách khớp`,
-    `\`${prefix}ar on "hello"\` / \`${prefix}ar off "hello"\` — bật/tắt`,
-    `\`${prefix}ar list\` — danh sách trigger`,
-    `\`${prefix}ar delete "hello"\` — xóa trigger`,
-    "",
-    "Ngoài ra có thể dùng slash command `/ar` với các subcommand tương tự.",
-  ].join("\n");
+function autoResHelp(message) {
+    return new EmbedBuilder()
+        .setColor("#481f86")
+        .setDescription([
+            "# <a:helukiti:1529927128747872386>    AUTORESPONDER <a:helukiti:1529927128747872386>",
+            "",
+            '<:hoa_mini:1529258852686500021> `har create "hello" text|embed` — tạo trigger mới',
+            '<:hoa_mini:1529258852686500021> `har content "hello" nội dung` — sửa nội dung (text)',
+            '<:hoa_mini:1529258852686500021> `har title "hello" tiêu đề` — sửa title (embed)',
+            '<:hoa_mini:1529258852686500021> `har desc "hello" mô tả` — sửa description (embed)',
+            '<:hoa_mini:1529258852686500021> `har color "hello" #HEXCOLOR` — sửa màu embed',
+            '<:hoa_mini:1529258852686500021> `har footer "hello" footer` — sửa footer (embed)',
+            '<:hoa_mini:1529258852686500021> `har thumb "hello" + ảnh` — sửa thumbnail (embed)',
+            '<:hoa_mini:1529258852686500021> `har image "hello" + ảnh` — sửa ảnh lớn (embed)',
+            '<:hoa_mini:1529258852686500021> `har type "hello" text|embed` — đổi loại',
+            '<:hoa_mini:1529258852686500021> `har mode "hello" exact|contains` — đổi cách khớp',
+            '<:hoa_mini:1529258852686500021> `har on "hello" / har off "hello"` — bật/tắt',
+            '<:hoa_mini:1529258852686500021> `har list` — danh sách trigger',
+            '<:hoa_mini:1529258852686500021> `har delete "hello"` — xóa trigger',
+            "",
+            "<a:hoatim:1529735587026964491>    Ngoài ra có thể dùng slash command `/ar` với các subcommand tương tự."
+        ].join("\n"));
 }
 
 // parseArgs: tách "..." thành 1 phần tử, còn lại tách theo khoảng trắng
@@ -430,8 +433,11 @@ async function handleAutoResCommand(message, rawArgs) {
   if (!message.guild) return message.channel.send("Lệnh này chỉ dùng trong server.");
   const args = [...rawArgs];
   const sub = (args.shift() || "").toLowerCase();
-  if (!sub) return message.channel.send(autoResHelp());
-
+if (!sub) {
+    return message.channel.send({
+        embeds: [autoResHelp(message)]
+    });
+}
   const guildData = getGuildAutoRes(message.guild.id);
   const editSubs = ["delete", "content", "title", "desc", "color", "footer", "thumb", "image", "type", "mode", "on", "off"];
   let trigger = args[0];
@@ -448,7 +454,7 @@ async function handleAutoResCommand(message, rawArgs) {
   const needsManager = ["create", "delete", "content", "title", "desc", "color", "footer", "thumb", "image", "type", "mode", "on", "off"].includes(sub);
 
   if (needsManager && !hasAutoResManagerRole(message)) {
-    return message.channel.send("⛔ Bạn không có quyền AutoRes.");
+    return message.channel.send("<a:joe_deo:1543982900352000010> Bạn không có quyền AutoRes.");
   }
 
   if (sub === "create") {
@@ -469,14 +475,14 @@ async function handleAutoResCommand(message, rawArgs) {
       createdBy: message.author.id,
     });
     saveAutoRes(autoRes);
-    return message.channel.send(`✅ Đã tạo AutoRes **${guildData[key].trigger}** dạng **${type}**.`);
+    return message.channel.send(`<a:daucheck:1543227340648087614> Đã tạo AutoRes **${guildData[key].trigger}** dạng **${type}**.`);
   }
 
   if (sub === "list") {
     const entries = Object.values(guildData);
-    if (!entries.length) return message.channel.send("🤖 Server chưa có AutoRes nào.");
-    const lines = entries.map((r, i) => `${i + 1}. ${r.enabled ? "🟢" : "🔴"} **${r.trigger}** — ${r.type} — ${r.mode}`);
-    return message.channel.send(`**🤖 AutoRes (${entries.length})**\n${lines.join("\n")}`);
+    if (!entries.length) return message.channel.send("<a:bow3:1543226020512014427> Server chưa có AutoRes nào.");
+    const lines = entries.map((r, i) => `${i + 1}. ${r.enabled ? "<a:daucheck:1543227340648087614>" : "<a:dau_x:1543980848888549458>"} **${r.trigger}** — ${r.type} — ${r.mode}`);
+    return message.channel.send(`**<a:bow3:1543226020512014427> AutoRes (${entries.length})**\n${lines.join("\n")}`);
   }
 
   if (sub === "delete") {
@@ -485,7 +491,7 @@ async function handleAutoResCommand(message, rawArgs) {
     removeLocalImage(record.embed.image);
     delete guildData[normalizeTrigger(trigger)];
     saveAutoRes(autoRes);
-    return message.channel.send(`🗑️ Đã xóa AutoRes **${record.trigger}**.`);
+    return message.channel.send(`<a:milk2:1543226670276808714> Đã xóa AutoRes **${record.trigger}**.`);
   }
 
   if (!record) return message.channel.send(`Không tìm thấy AutoRes. Dùng \`${prefix}ar list\` để xem danh sách.`);
@@ -493,7 +499,7 @@ async function handleAutoResCommand(message, rawArgs) {
   if (sub === "on" || sub === "off") {
     record.enabled = sub === "on";
     saveAutoRes(autoRes);
-    return message.channel.send(`${record.enabled ? "🟢 Đã bật" : "🔴 Đã tắt"} AutoRes **${record.trigger}**.`);
+    return message.channel.send(`${record.enabled ? "<a:daucheck:1543227340648087614> Đã bật" : "<a:dau_x:1543980848888549458> Đã tắt"} AutoRes **${record.trigger}**.`);
   }
 
   if (sub === "type") {
@@ -501,7 +507,7 @@ async function handleAutoResCommand(message, rawArgs) {
     if (!["text", "embed"].includes(type)) return message.channel.send(`Dùng: \`${prefix}ar type "hello" text|embed\``);
     record.type = type;
     saveAutoRes(autoRes);
-    return message.channel.send(`✅ AutoRes **${record.trigger}** giờ là **${type}**.`);
+    return message.channel.send(`<a:daucheck:1543227340648087614> AutoRes **${record.trigger}** giờ là **${type}**.`);
   }
 
   if (sub === "mode") {
@@ -509,13 +515,13 @@ async function handleAutoResCommand(message, rawArgs) {
     if (!["exact", "contains"].includes(mode)) return message.channel.send(`Dùng: \`${prefix}ar mode "hello" exact|contains\``);
     record.mode = mode;
     saveAutoRes(autoRes);
-    return message.channel.send(`✅ Trigger **${record.trigger}** dùng mode **${mode}**.`);
+    return message.channel.send(`<a:daucheck:1543227340648087614> Trigger **${record.trigger}** dùng mode **${mode}**.`);
   }
 
   if (sub === "content") {
     record.content = args.slice(1).join(" ").trim();
     saveAutoRes(autoRes);
-    return message.channel.send(`✅ Đã cập nhật nội dung AutoRes **${record.trigger}**.`);
+    return message.channel.send(`<a:daucheck:1543227340648087614> Đã cập nhật nội dung AutoRes **${record.trigger}**.`);
   }
 
   if (sub === "title" || sub === "desc" || sub === "footer") {
@@ -523,7 +529,7 @@ async function handleAutoResCommand(message, rawArgs) {
     const field = sub === "desc" ? "description" : sub;
     record.embed[field] = value;
     saveAutoRes(autoRes);
-    return message.channel.send(`✅ Đã cập nhật ${field} cho **${record.trigger}**.`);
+    return message.channel.send(`<a:daucheck:1543227340648087614> Đã cập nhật ${field} cho **${record.trigger}**.`);
   }
 
   if (sub === "color") {
@@ -532,7 +538,7 @@ async function handleAutoResCommand(message, rawArgs) {
     else if (/^#?[0-9a-f]{6}$/i.test(value)) record.embed.color = parseInt(value.replace("#", ""), 16);
     else return message.channel.send(`Dùng: \`${prefix}ar color "hello" #ff69b4\` hoặc \`reset\``);
     saveAutoRes(autoRes);
-    return message.channel.send(`🎨 Đã cập nhật màu AutoRes **${record.trigger}**.`);
+    return message.channel.send(`<a:butmau:1543977031153356912> Đã cập nhật màu AutoRes **${record.trigger}**.`);
   }
 
   if (sub === "thumb" || sub === "image") {
@@ -545,14 +551,16 @@ async function handleAutoResCommand(message, rawArgs) {
       record.embed[field] = stored;
       removeLocalImage(old);
       saveAutoRes(autoRes);
-      return message.channel.send(`✅ Đã cập nhật ${sub === "thumb" ? "thumbnail" : "image"} cho AutoRes **${record.trigger}**.`);
+      return message.channel.send(`<a:daucheck:1543227340648087614> Đã cập nhật ${sub === "thumb" ? "thumbnail" : "image"} cho AutoRes **${record.trigger}**.`);
     } catch (error) {
       console.error(error);
-      return message.channel.send("❌ Không thể lưu ảnh AutoRes.");
+      return message.channel.send("<a:milk1:1543226643961610352> Không thể lưu ảnh AutoRes.");
     }
   }
 
-  return message.channel.send(autoResHelp());
+  return message.channel.send({
+    embeds: [autoResHelp(message)]
+});
 }
 
 //autores: slash command "/ar" — tạo bằng modal, còn lại bằng option
@@ -598,20 +606,20 @@ async function handleAutoResCreateModal(interaction) {
   const token = interaction.customId.slice("ar_create_modal:".length);
   const pending = pendingAutoResCreates.get(token);
   if (!pending) {
-    await interaction.reply({ content: "❌ Phiên tạo AutoRes đã hết hạn. Hãy dùng lại `/ar create`.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "<a:milk1:1543226643961610352> Phiên tạo AutoRes đã hết hạn. Hãy dùng lại `/ar create`.", flags: MessageFlags.Ephemeral });
     return true;
   }
   pendingAutoResCreates.delete(token);
 
   if (pending.userId !== interaction.user.id || pending.guildId !== interaction.guildId) {
-    await interaction.reply({ content: "⛔ Bạn không thể dùng form AutoRes này.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "<a:joe_deo:1543982900352000010> Bạn không thể dùng form AutoRes này.", flags: MessageFlags.Ephemeral });
     return true;
   }
 
   const guildData = getGuildAutoRes(interaction.guild.id);
   const key = normalizeTrigger(pending.trigger);
   if (guildData[key]) {
-    await interaction.reply({ content: "⚠️ AutoRes này đã tồn tại.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "<:pink_warning:1543983381279146055> AutoRes này đã tồn tại.", flags: MessageFlags.Ephemeral });
     return true;
   }
 
@@ -626,7 +634,7 @@ async function handleAutoResCreateModal(interaction) {
     if (colorValue === "reset") color = 0x5865f2;
     else if (/^#?[0-9a-f]{6}$/i.test(colorValue)) color = parseInt(colorValue.replace("#", ""), 16);
     else {
-      await interaction.reply({ content: "❌ Màu không hợp lệ. Dùng `#ff69b4` hoặc để trống.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "<a:milk1:1543226643961610352> Màu không hợp lệ. Dùng `#ff69b4` hoặc để trống.", flags: MessageFlags.Ephemeral });
       return true;
     }
   }
@@ -644,7 +652,7 @@ async function handleAutoResCreateModal(interaction) {
   saveAutoRes(autoRes);
 
   await interaction.reply({
-    content: `✅ Đã tạo AutoRes **${pending.trigger}** dạng **${pending.type}**${content ? " và đã đặt content." : "."}`,
+    content: `<a:daucheck:1543227340648087614> Đã tạo AutoRes **${pending.trigger}** dạng **${pending.type}**${content ? " và đã đặt content." : "."}`,
     flags: MessageFlags.Ephemeral,
   });
   return true;
@@ -653,7 +661,7 @@ async function handleAutoResCreateModal(interaction) {
 async function handleAutoResSlash(interaction) {
   if (!interaction.isChatInputCommand() || interaction.commandName !== "ar") return false;
   if (!interaction.guild) {
-    await interaction.reply({ content: "❌ Lệnh này chỉ dùng trong server.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "<a:milk1:1543226643961610352> Lệnh này chỉ dùng trong server.", flags: MessageFlags.Ephemeral });
     return true;
   }
 
@@ -662,7 +670,7 @@ async function handleAutoResSlash(interaction) {
   if (managerActions.includes(action)) {
     const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => interaction.member);
     if (!hasAutoResManagerRole({ guild: interaction.guild, member })) {
-      await interaction.reply({ content: "⛔ Bạn không có quyền AutoRes.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "<a:joe_deo:1543982900352000010> Bạn không có quyền AutoRes.", flags: MessageFlags.Ephemeral });
       return true;
     }
   }
@@ -672,11 +680,11 @@ async function handleAutoResSlash(interaction) {
   if (action === "list") {
     const entries = Object.values(guildData);
     if (!entries.length) {
-      await interaction.reply("🤖 Server chưa có AutoRes nào.");
+      await interaction.reply("<a:hok:1528801736448409632> Server chưa có AutoRes nào.");
       return true;
     }
-    const lines = entries.map((r, i) => `${i + 1}. ${r.enabled ? "🟢" : "🔴"} **${r.trigger}** — ${r.type} — ${r.mode}`);
-    await interaction.reply(`**🤖 AutoRes (${entries.length})**\n${lines.join("\n")}`);
+    const lines = entries.map((r, i) => `${i + 1}. ${r.enabled ? "<a:daucheck:1543227340648087614>" : "<a:dau_x:1543980848888549458>"} **${r.trigger}** — ${r.type} — ${r.mode}`);
+    await interaction.reply(`**<a:bow3:1543226020512014427> AutoRes (${entries.length})**\n${lines.join("\n")}`);
     return true;
   }
 
@@ -687,11 +695,11 @@ async function handleAutoResSlash(interaction) {
   if (action === "create") {
     const type = interaction.options.getString("type", true);
     if (!key) {
-      await interaction.reply({ content: "❌ Trigger không được để trống.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "<a:milk1:1543226643961610352> Trigger không được để trống.", flags: MessageFlags.Ephemeral });
       return true;
     }
     if (guildData[key]) {
-      await interaction.reply({ content: "⚠️ AutoRes này đã tồn tại.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "<:pink_warning:1543983381279146055> AutoRes này đã tồn tại.", flags: MessageFlags.Ephemeral });
       return true;
     }
 
@@ -710,7 +718,7 @@ async function handleAutoResSlash(interaction) {
   }
 
   if (!record) {
-    await interaction.reply({ content: "❌ Không tìm thấy AutoRes. Dùng `/ar list` để xem danh sách.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "<a:milk1:1543226643961610352> Không tìm thấy AutoRes. Dùng `/ar list` để xem danh sách.", flags: MessageFlags.Ephemeral });
     return true;
   }
 
@@ -719,14 +727,14 @@ async function handleAutoResSlash(interaction) {
     removeLocalImage(record.embed.image);
     delete guildData[normalizeTrigger(record.trigger)];
     saveAutoRes(autoRes);
-    await interaction.reply(`🗑️ Đã xóa AutoRes **${record.trigger}**.`);
+    await interaction.reply(`<a:milk2:1543226670276808714> Đã xóa AutoRes **${record.trigger}**.`);
     return true;
   }
 
   if (action === "on" || action === "off") {
     record.enabled = action === "on";
     saveAutoRes(autoRes);
-    await interaction.reply(`${record.enabled ? "🟢 Đã bật" : "🔴 Đã tắt"} AutoRes **${record.trigger}**.`);
+    await interaction.reply(`${record.enabled ? "<a:daucheck:1543227340648087614> Đã bật" : "<a:dau_x:1543980848888549458> Đã tắt"} AutoRes **${record.trigger}**.`);
     return true;
   }
 
@@ -754,7 +762,7 @@ async function handleAutoResSlash(interaction) {
       if (value === "reset") record.embed.color = 0x5865f2;
       else if (/^#?[0-9a-f]{6}$/i.test(value)) record.embed.color = parseInt(value.replace("#", ""), 16);
       else {
-        await interaction.reply({ content: "❌ Màu không hợp lệ. Ví dụ `#ff69b4` hoặc `reset`.", flags: MessageFlags.Ephemeral });
+        await interaction.reply({ content: "<a:milk1:1543226643961610352> Màu không hợp lệ. Ví dụ `#ff69b4` hoặc `reset`.", flags: MessageFlags.Ephemeral });
         return true;
       }
       changed.push("color");
@@ -775,24 +783,24 @@ async function handleAutoResSlash(interaction) {
       }
     } catch (error) {
       console.error(error);
-      await interaction.reply({ content: "❌ Không thể lưu ảnh AutoRes.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "<a:milk1:1543226643961610352> Không thể lưu ảnh AutoRes.", flags: MessageFlags.Ephemeral });
       return true;
     }
 
     if (!changed.length) {
-      await interaction.reply({ content: "ℹ️ Không có thông tin nào được thay đổi.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "ℹ<a:ghichep:1543982509623083149> Không có thông tin nào được thay đổi.", flags: MessageFlags.Ephemeral });
       return true;
     }
 
     saveAutoRes(autoRes);
-    await interaction.reply(`✅ Đã cập nhật **${record.trigger}**: ${changed.join(", ")}.`);
+    await interaction.reply(`<a:daucheck:1543227340648087614> Đã cập nhật **${record.trigger}**: ${changed.join(", ")}.`);
     return true;
   }
 
   return true;
 }
 
-// ================== //autores: HẾT KHỐI TÍNH NĂNG AUTORES ==================
+// ================== //autores: HẾT KHỐI TÍNH NĂNG AUTORES// mấy code trên thg sang béu code==================
 
 // doc, ghi file warn
 let warns = {};
@@ -1380,7 +1388,7 @@ if (command === "mute") {
 
         const embed = new EmbedBuilder()
             .setColor("#481f86")
-            .setTitle("🗑️ Xóa cảnh cáo thành công")
+            .setTitle("<a:milk2:1543226670276808714> Xóa cảnh cáo thành công")
             .setDescription(`Đã xóa cảnh cáo số **${index + 1}** của ${member}.`)
             .addFields(
                 { name: "📝 Lý do cũ", value: removed.reason, inline: true },
@@ -1649,7 +1657,7 @@ if (command === "mute") {
         }
 
         await finishGiveaway(channel, messageId, gaData.title, gaData.creator, gaData.winnerCount, gaData.giveawayMsg);
-        return tempReply(message, "✅ Đã dừng giveaway và công bố người chiến thắng thành công!");
+        return tempReply(message, "<a:daucheck:1543227340648087614> Đã dừng giveaway và công bố người chiến thắng thành công!");
     }
 
     // ga rr
