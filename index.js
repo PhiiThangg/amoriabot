@@ -34,7 +34,7 @@ const chokidar = require("chokidar");
 const { Octokit } = require("@octokit/rest");
 
 const TOKEN = process.env.TOKEN;
-const prefix = (process.env.prefix || "h").replace(/^!/, "").trim() || "h";
+const prefix = (process.env.prefix || "a").replace(/^!/, "").trim() || "a";
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -384,25 +384,25 @@ function findMatchingAutoRes(guildId, content) {
 //autores: help + lệnh prefix "${prefix}ar <sub> ..."
 function autoResHelp(message) {
     return new EmbedBuilder()
-        .setColor("#481f86")
+        .setColor("rgb(207, 106, 202)")
         .setDescription([
-            "# <a:helukiti:1529927128747872386>    AUTORESPONDER <a:helukiti:1529927128747872386>",
+            "# <a:buomtrang:1547854461282549811>    AUTORESPONDER <a:buomtrang:1547854461282549811>",
             "",
-            '<:hoa_mini:1529258852686500021> `har create "hello" text|embed` — tạo trigger mới',
-            '<:hoa_mini:1529258852686500021> `har content "hello" nội dung` — sửa nội dung (text)',
-            '<:hoa_mini:1529258852686500021> `har title "hello" tiêu đề` — sửa title (embed)',
-            '<:hoa_mini:1529258852686500021> `har desc "hello" mô tả` — sửa description (embed)',
-            '<:hoa_mini:1529258852686500021> `har color "hello" #HEXCOLOR` — sửa màu embed',
-            '<:hoa_mini:1529258852686500021> `har footer "hello" footer` — sửa footer (embed)',
-            '<:hoa_mini:1529258852686500021> `har thumb "hello" + ảnh` — sửa thumbnail (embed)',
-            '<:hoa_mini:1529258852686500021> `har image "hello" + ảnh` — sửa ảnh lớn (embed)',
-            '<:hoa_mini:1529258852686500021> `har type "hello" text|embed` — đổi loại',
-            '<:hoa_mini:1529258852686500021> `har mode "hello" exact|contains` — đổi cách khớp',
-            '<:hoa_mini:1529258852686500021> `har on "hello" / har off "hello"` — bật/tắt',
-            '<:hoa_mini:1529258852686500021> `har list` — danh sách trigger',
-            '<:hoa_mini:1529258852686500021> `har delete "hello"` — xóa trigger',
+            '<:tim:1547855114369503292> `aar create "hello" text|embed` — tạo trigger mới',
+            '<:tim:1547855114369503292> `aar content "hello" nội dung` — sửa nội dung (text)',
+            '<:tim:1547855114369503292> `aar title "hello" tiêu đề` — sửa title (embed)',
+            '<:tim:1547855114369503292> `aar desc "hello" mô tả` — sửa description (embed)',
+            '<:tim:1547855114369503292> `aar color "hello" #HEXCOLOR` — sửa màu embed',
+            '<:tim:1547855114369503292> `aar footer "hello" footer` — sửa footer (embed)',
+            '<:tim:1547855114369503292> `aar thumb "hello" + ảnh` — sửa thumbnail (embed)',
+            '<:tim:1547855114369503292> `aar image "hello" + ảnh` — sửa ảnh lớn (embed)',
+            '<:tim:1547855114369503292> `aar type "hello" text|embed` — đổi loại',
+            '<:tim:1547855114369503292> `aar mode "hello" exact|contains` — đổi cách khớp',
+            '<:tim:1547855114369503292> `aar on "hello" / har off "hello"` — bật/tắt',
+            '<:tim:1547855114369503292> `aar list` — danh sách trigger',
+            '<:tim:1547855114369503292> `aar delete "hello"` — xóa trigger',
             "",
-            "<a:hoatim:1529735587026964491>    Ngoài ra có thể dùng slash command `/ar` với các subcommand tương tự."
+            "<a:laplanh:1547854899901890570>    Ngoài ra có thể dùng slash command `/ar` với các subcommand tương tự."
         ].join("\n"));
 }
 
@@ -889,7 +889,7 @@ function getHavActionRow(targetId) {
 // embed help
 function getHomeEmbed(guild, client, prefix) {
     return new EmbedBuilder()
-        .setColor("#481f86")
+        .setColor("rgb(207, 106, 202)")
         .setAuthor({ 
             name: guild.name, 
             iconURL: guild.iconURL({ dynamic: true }) 
@@ -930,12 +930,12 @@ async function finishGiveaway(channel, messageId, title, creator, winnerCount, g
                 `<a:trangtim:1529563713516998779> **Tổ chức bởi** : ${creator}\n` +
                 `<a:trangtim:1529563713516998779> **Người chiến thắng** : Không có ai tham gia!`
             )
-            .setImage("https://media.discordapp.net/attachments/1530129148683485184/1531566259181981746/image.png?ex=6a69adbb&is=6a685c3b&hm=8c6d9b3a9ffb76983485372ea7beec3db4cf98cc46f820820a99eec40016bb98&=&format=webp&quality=lossless")
+            .setImage("https://media.discordapp.net/attachments/1531344159145988136/1547852268114546688/From_Klickpin.com-_18507048539427414-pin-id-18507048539427414.gif?ex=6aa4ed42&is=6aa39bc2&hm=260a4181b53a427407793636e9221033fb700b309b2ae4bdbd0c46ecf95953ff&=")
             .setFooter({ text: `${winnerCount} người thắng | Kết thúc lúc`, iconURL: client.user.displayAvatarURL() })
             .setTimestamp();
 
         await giveawayMsg.edit({ 
-            content: "# <a:myshwing1:1531676766203019426> **__Giveaway kết thúc__** <a:myshwing2:1531676769814581312>", 
+            content: "# <a:canhtraii:1547853380964065410> **__Giveaway kết thúc__** <a:canhphaii:1547853665128153108>", 
             embeds: [endedEmbed] 
         }).catch(() => {});
 
@@ -955,7 +955,7 @@ async function finishGiveaway(channel, messageId, title, creator, winnerCount, g
     const winnerMentions = winners.map(id => `<@${id}>`).join(", ");
 
     const endedEmbed = new EmbedBuilder()
-        .setColor("#481f86")
+        .setColor("rgb(207, 106, 202)")
         .setAuthor({ 
             name: channel.guild.name, 
             iconURL: channel.guild.iconURL({ dynamic: true }) 
@@ -967,12 +967,12 @@ async function finishGiveaway(channel, messageId, title, creator, winnerCount, g
             `<a:trangtim:1529563713516998779> **Tổ chức bởi** : ${creator}\n` +
             `<a:trangtim:1529563713516998779> **Người chiến thắng** : ${winnerMentions}`
         )
-        .setImage("https://media.discordapp.net/attachments/1530129148683485184/1531566259181981746/image.png?ex=6a69adbb&is=6a685c3b&hm=8c6d9b3a9ffb76983485372ea7beec3db4cf98cc46f820820a99eec40016bb98&=&format=webp&quality=lossless")
+        .setImage("https://media.discordapp.net/attachments/1531344159145988136/1547852268114546688/From_Klickpin.com-_18507048539427414-pin-id-18507048539427414.gif?ex=6aa4ed42&is=6aa39bc2&hm=260a4181b53a427407793636e9221033fb700b309b2ae4bdbd0c46ecf95953ff&=")
         .setFooter({ text: `${winnerCount} người thắng | Kết thúc lúc`, iconURL: client.user.displayAvatarURL() })
         .setTimestamp();
 
     await giveawayMsg.edit({ 
-        content: "# <a:myshwing1:1531676766203019426> **__Giveaway kết thúc__** <a:myshwing2:1531676769814581312>", 
+        content: "# <a:canhtraii:1547853380964065410> **__Giveaway kết thúc__** <a:canhphaii:1547853665128153108>", 
         embeds: [endedEmbed] 
     }).catch(() => {});
 
@@ -1089,7 +1089,7 @@ client.on("messageCreate", async (message) => {
         await member.ban({ reason });
 
         const embed = new EmbedBuilder()
-            .setColor("#481f86")
+            .setColor("rgb(207, 106, 202)")
             .setTitle("🔨 Ban thành công")
             .setDescription(`${member} đã bị ban.`)
             .addFields(
@@ -1120,7 +1120,7 @@ client.on("messageCreate", async (message) => {
             await message.guild.members.unban(userId, reason);
 
             const embed = new EmbedBuilder()
-                .setColor("#481f86")
+                .setColor("rgb(207, 106, 202)")
                 .setTitle("🔓 Unban thành công")
                 .setDescription(`Đã gỡ ban thành công cho người dùng có ID: \`${userId}\``)
                 .addFields(
@@ -1153,7 +1153,7 @@ client.on("messageCreate", async (message) => {
         await member.kick(reason);
 
         const embed = new EmbedBuilder()
-            .setColor("#481f86")
+            .setColor("rgb(207, 106, 202)")
             .setTitle("👢 Kick thành công")
             .setDescription(`${member} đã bị kick.`)
             .addFields(
@@ -1235,7 +1235,7 @@ if (command === "mute") {
         }
 
         const embed = new EmbedBuilder()
-            .setColor("#481f86")
+            .setColor("rgb(207, 106, 202)")
             .setTitle("🔇 Mute thành công")
             .setDescription(`${member} đã bị mute.`)
             .addFields(
@@ -1288,7 +1288,7 @@ if (command === "mute") {
             await member.timeout(null, reason);
 
             const embed = new EmbedBuilder()
-                .setColor("#481f86")
+                .setColor("rgb(207, 106, 202)")
                 .setTitle("🔊 Unmute thành công")
                 .setDescription(`${member} đã được gỡ mute.`)
                 .addFields(
@@ -1344,7 +1344,7 @@ if (command === "mute") {
         saveWarns();
 
         const embed = new EmbedBuilder()
-            .setColor("#481f86")
+            .setColor("rgb(207, 106, 202)")
             .setTitle("⚠️ Thành viên đã bị cảnh cáo")
             .setDescription(`${member} đã nhận một cảnh cáo.`)
             .addFields(
@@ -1387,7 +1387,7 @@ if (command === "mute") {
         saveWarns();
 
         const embed = new EmbedBuilder()
-            .setColor("#481f86")
+            .setColor("rgb(207, 106, 202)")
             .setTitle("<a:milk2:1543226670276808714> Xóa cảnh cáo thành công")
             .setDescription(`Đã xóa cảnh cáo số **${index + 1}** của ${member}.`)
             .addFields(
@@ -1405,7 +1405,7 @@ if (command === "mute") {
 
         if (!warns[member.id] || warns[member.id].length === 0) {
             const embed = new EmbedBuilder()
-                .setColor("#481f86")
+                .setColor("rgb(207, 106, 202)")
                 .setTitle("📊 Thông tin cảnh cáo")
                 .setDescription(`<a:tikhong:1542901135088812092> ${member} hiện không có cảnh cáo nào.`);
                 
@@ -1413,7 +1413,7 @@ if (command === "mute") {
         }
 
         const embed = new EmbedBuilder()
-            .setColor("#481f86")
+            .setColor("rgb(207, 106, 202)")
             .setTitle(`📊 Lịch sử cảnh cáo của ${member.user.tag}`)
             .setDescription(`Tổng số cảnh cáo: **${warns[member.id].length}**`);
 
@@ -1460,7 +1460,7 @@ if (command === "mute") {
             }, { reason: `Locked by ${message.author.tag}` });
 
             const embed = new EmbedBuilder()
-                .setColor("#481f86")
+                .setColor("rgb(207, 106, 202)")
                 .setTitle("<a:tikhong:1542901135088812092> Khóa kênh thành công")
                 .setDescription(
                     `Đã khóa kênh ${targetChannel}.`
@@ -1525,7 +1525,7 @@ if (command === "mute") {
             }, { reason: `Unlocked by ${message.author.tag}` });
 
             const embed = new EmbedBuilder()
-                .setColor("#481f86")
+                .setColor("rgb(207, 106, 202)")
                 .setTitle("<a:tikhong:1542901135088812092> Mở khóa kênh thành công")
                 .setDescription(
                     `Đã mở khóa kênh ${targetChannel}.`
@@ -1597,7 +1597,7 @@ if (command === "mute") {
         const guild = message.guild;
 
         const embed = new EmbedBuilder()
-            .setColor("#481f86")
+            .setColor("rgb(207, 106, 202)")
             .setAuthor({ 
                 name: guild.name, 
                 iconURL: guild.iconURL({ dynamic: true }) 
@@ -1608,7 +1608,7 @@ if (command === "mute") {
                 `<a:trangtim:1529563713516998779> **Thời gian** : <t:${Math.floor(endTime / 1000)}:R> ⏰\n` +
                 `<a:trangtim:1529563713516998779> **Tổ chức bởi** : ${creator}`
             )
-            .setImage("https://media.discordapp.net/attachments/1530129148683485184/1531566259181981746/image.png?ex=6a69adbb&is=6a685c3b&hm=8c6d9b3a9ffb76983485372ea7beec3db4cf98cc46f820820a99eec40016bb98&=&format=webp&quality=lossless")
+            .setImage("https://cdn.discordapp.com/attachments/1547595222173622334/1547604677515018332/From_Klickpin.com-_18507048539427414-pin-id-18507048539427414.gif?ex=6aa406ac&is=6aa2b52c&hm=064922ac8df6d0e62e5e567bb1362ab35e7b2290fc40e6f3e3af29ee9a9e64f4&")
             .setFooter({ text: `${winnerCount} người thắng | Bắt đầu lúc`, iconURL: client.user.displayAvatarURL() })
             .setTimestamp();
 
@@ -1713,7 +1713,7 @@ if (command === "mute") {
             const avatarURL = fetchedTarget.displayAvatarURL({ size: 1024, dynamic: true });
 
             const embed = new EmbedBuilder()
-                .setColor("#481f86")
+                .setColor("rgb(207, 106, 202)")
                 .setTitle(`Avatar của ${fetchedTarget.tag}`)
                 .setImage(avatarURL)
                 .setFooter({
@@ -1729,7 +1729,7 @@ if (command === "mute") {
 
         // soi av acp
         const embed = new EmbedBuilder()
-            .setColor("#481f86")
+            .setColor("rgb(207, 106, 202)")
             .setTitle("Yêu cầu xem avatar")
             .setDescription(`${message.author} muốn xem avatar của bạn. Bạn có đồng ý không?`)
             .setFooter({ text: `Yêu cầu bởi ${message.author.tag}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
@@ -1867,7 +1867,7 @@ else if (command === "role") {
             await memberToModify.roles.remove(roleToModify, `Role removed by ${message.author.tag}`);
 
             const embed = new EmbedBuilder()
-                .setColor("#481f86")
+                .setColor("rgb(207, 106, 202)")
                 .setTitle("❌ Gỡ Role thành công")
                 .setDescription(`Đã gỡ role ${roleToModify} khỏi ${memberToModify}.`)
                 .addFields(
@@ -1883,7 +1883,7 @@ else if (command === "role") {
         await memberToModify.roles.add(roleToModify, `Role added by ${message.author.tag}`);
 
         const embed = new EmbedBuilder()
-            .setColor("#481f86")
+            .setColor("rgb(207, 106, 202)")
             .setTitle("<a:tikhong:1542901135088812092> Thêm Role thành công")
             .setDescription(`Đã thêm role ${roleToModify} cho ${memberToModify}.` + (timeString ? `\n⏱️ **Thời hạn:** ${timeString}` : ""))
             .addFields(
@@ -1905,7 +1905,7 @@ else if (command === "role") {
                         
                         // Tạo embed thông báo hết giờ (không bị ping role hay user)
                         const expireEmbed = new EmbedBuilder()
-                            .setColor("#481f86")
+                            .setColor("rgb(207, 106, 202)")
                             .setTitle("<a:milk1:1543226643961610352> Hết thời gian Temp Role")
                             .setDescription(`Đã tự động gỡ role cho thành viên sau thời gian đã định.`)
                             .addFields(
@@ -1988,7 +1988,7 @@ client.on("interactionCreate", async (interaction) => {
 
             if (selected === "help_mod") {
                 const embed = new EmbedBuilder()
-                    .setColor("#481f86")
+                    .setColor("rgb(207, 106, 202)")
                     .setAuthor({ 
                         name: interaction.guild.name, 
                         iconURL: interaction.guild.iconURL({ dynamic: true }) 
@@ -2019,7 +2019,7 @@ client.on("interactionCreate", async (interaction) => {
 
             if (selected === "help_warn") {
                 const embed = new EmbedBuilder()
-                    .setColor("#481f86")
+                    .setColor("rgb(207, 106, 202)")
                     .setAuthor({ 
                         name: interaction.guild.name, 
                         iconURL: interaction.guild.iconURL({ dynamic: true }) 
@@ -2044,7 +2044,7 @@ client.on("interactionCreate", async (interaction) => {
 
             if (selected === "help_ga") {
                 const embed = new EmbedBuilder()
-                    .setColor("#481f86")
+                    .setColor("rgb(207, 106, 202)")
                     .setAuthor({ 
                         name: interaction.guild.name, 
                         iconURL: interaction.guild.iconURL({ dynamic: true }) 
@@ -2068,7 +2068,7 @@ client.on("interactionCreate", async (interaction) => {
             }
                         if (selected === "help_user") {
                 const embed = new EmbedBuilder()
-                    .setColor("#481f86")
+                    .setColor("rgb(207, 106, 202)")
                     .setAuthor({ 
                         name: interaction.guild.name, 
                         iconURL: interaction.guild.iconURL({ dynamic: true }) 
@@ -2112,7 +2112,7 @@ client.on("interactionCreate", async (interaction) => {
                 const avatarURL = fetchedTarget ? fetchedTarget.displayAvatarURL({ size: 1024, dynamic: true }) : interaction.user.displayAvatarURL({ size: 1024, dynamic: true });
 
                 const acceptedEmbed = new EmbedBuilder()
-                    .setColor("#481f86")
+                    .setColor("rgb(207, 106, 202)")
                     .setAuthor({ name: interaction.guild.name, iconURL: interaction.guild.iconURL({ dynamic: true }) })
                     .setTitle(`Avatar của ${fetchedTarget ? fetchedTarget.tag : interaction.user.tag}`)
                     .setImage(avatarURL)
@@ -2159,7 +2159,7 @@ client.on("interactionCreate", async (interaction) => {
             const member = await guild.members.fetch(targetUserId).catch(() => null);
 
             const newEmbed = new EmbedBuilder()
-                .setColor("#481f86")
+                .setColor("rgb(207, 106, 202)")
                 .setAuthor({ name: guild.name, iconURL: guild.iconURL({ dynamic: true }) })
                 .setFooter({ text: `Yêu cầu bởi ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
                 .setTimestamp();
