@@ -1466,7 +1466,7 @@ if (command === "mute") {
 
             const embed = new EmbedBuilder()
                 .setColor("#cf6aca")
-                .setTitle(":dautick:1548201957787836506> Khóa kênh thành công")
+                .setTitle("<:dautick:1548201957787836506> Khóa kênh thành công")
                 .setDescription(
                     `Đã khóa kênh ${targetChannel}.`
                 )
@@ -1531,7 +1531,7 @@ if (command === "mute") {
 
             const embed = new EmbedBuilder()
                 .setColor("#cf6aca")
-                .setTitle(":dautick:1548201957787836506> Mở khóa kênh thành công")
+                .setTitle("<:dautick:1548201957787836506> Mở khóa kênh thành công")
                 .setDescription(
                     `Đã mở khóa kênh ${targetChannel}.`
                 )
