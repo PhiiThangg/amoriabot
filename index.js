@@ -459,7 +459,7 @@ if (!sub) {
   const needsManager = ["create", "delete", "content", "title", "desc", "color", "footer", "thumb", "image", "type", "mode", "on", "off"].includes(sub);
 
   if (needsManager && !hasAutoResManagerRole(message)) {
-    return message.channel.send("<:ngu:1527286035770507354> Bạn không có quyền AutoRes.");
+    return message.channel.send("<:emoji_27:1505171452050280530> Bạn không có quyền AutoRes.");
   }
 
   if (sub === "create") {
@@ -480,14 +480,14 @@ if (!sub) {
       createdBy: message.author.id,
     });
     saveAutoRes(autoRes);
-    return message.channel.send(`<:k:1548201957787836506> Đã tạo AutoRes **${guildData[key].trigger}** dạng **${type}**.`);
+    return message.channel.send(`<:dautick:1548201957787836506> Đã tạo AutoRes **${guildData[key].trigger}** dạng **${type}**.`);
   }
 
   if (sub === "list") {
     const entries = Object.values(guildData);
-    if (!entries.length) return message.channel.send("<a:bow3:1543226020512014427> Server chưa có AutoRes nào.");
+    if (!entries.length) return message.channel.send("<a:ruybanghong:1548232023171141773> Server chưa có AutoRes nào.");
     const lines = entries.map((r, i) => `${i + 1}. ${r.enabled ? "<:dautick:1548201957787836506>" : "<:daucheo:1548201999886057484>"} **${r.trigger}** — ${r.type} — ${r.mode}`);
-    return message.channel.send(`**<a:bow3:1543226020512014427> AutoRes (${entries.length})**\n${lines.join("\n")}`);
+    return message.channel.send(`**<a:ruybanghong:1548232023171141773> AutoRes (${entries.length})**\n${lines.join("\n")}`);
   }
 
   if (sub === "delete") {
@@ -543,7 +543,7 @@ if (!sub) {
     else if (/^#?[0-9a-f]{6}$/i.test(value)) record.embed.color = parseInt(value.replace("#", ""), 16);
     else return message.channel.send(`Dùng: \`${prefix}ar color "hello" #ff69b4\` hoặc \`reset\``);
     saveAutoRes(autoRes);
-    return message.channel.send(`<a:butmau:1543977031153356912> Đã cập nhật màu AutoRes **${record.trigger}**.`);
+    return message.channel.send(`<:ygibiteo:1548231721521258506> Đã cập nhật màu AutoRes **${record.trigger}**.`);
   }
 
   if (sub === "thumb" || sub === "image") {
@@ -617,7 +617,7 @@ async function handleAutoResCreateModal(interaction) {
   pendingAutoResCreates.delete(token);
 
   if (pending.userId !== interaction.user.id || pending.guildId !== interaction.guildId) {
-    await interaction.reply({ content: "<:ngu:1527286035770507354> Bạn không thể dùng form AutoRes này.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "<:emoji_27:1505171452050280530> Bạn không thể dùng form AutoRes này.", flags: MessageFlags.Ephemeral });
     return true;
   }
 
@@ -666,7 +666,7 @@ async function handleAutoResCreateModal(interaction) {
 async function handleAutoResSlash(interaction) {
   if (!interaction.isChatInputCommand() || interaction.commandName !== "ar") return false;
   if (!interaction.guild) {
-    await interaction.reply({ content: "<:nohong:1548212367681388605> Lệnh này chỉ dùng trong server.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "<a:ruybanghong:1548232023171141773> Lệnh này chỉ dùng trong server.", flags: MessageFlags.Ephemeral });
     return true;
   }
 
@@ -675,7 +675,7 @@ async function handleAutoResSlash(interaction) {
   if (managerActions.includes(action)) {
     const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => interaction.member);
     if (!hasAutoResManagerRole({ guild: interaction.guild, member })) {
-      await interaction.reply({ content: "<:ngu:1527286035770507354> Bạn không có quyền AutoRes.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "<:emoji_27:1505171452050280530> Bạn không có quyền AutoRes.", flags: MessageFlags.Ephemeral });
       return true;
     }
   }
@@ -685,11 +685,11 @@ async function handleAutoResSlash(interaction) {
   if (action === "list") {
     const entries = Object.values(guildData);
     if (!entries.length) {
-      await interaction.reply("<a:hok:1528801736448409632> Server chưa có AutoRes nào.");
+      await interaction.reply("<a:xamlozn:1548232363069284363> Server chưa có AutoRes nào.");
       return true;
     }
     const lines = entries.map((r, i) => `${i + 1}. ${r.enabled ? "<:dautick:1548201957787836506>" : "<:daucheo:1548201999886057484>"} **${r.trigger}** — ${r.type} — ${r.mode}`);
-    await interaction.reply(`**<a:bow3:1543226020512014427> AutoRes (${entries.length})**\n${lines.join("\n")}`);
+    await interaction.reply(`**<a:ruybanghong:1548232023171141773> AutoRes (${entries.length})**\n${lines.join("\n")}`);
     return true;
   }
 
@@ -944,7 +944,7 @@ async function finishGiveaway(channel, messageId, title, creator, winnerCount, g
             embeds: [endedEmbed] 
         }).catch(() => {});
 
-        await giveawayMsg.reply("❌ Không có ai tham gia giveaway này!");
+        await giveawayMsg.reply("<:daucheo:1548201999886057484> Không có ai tham gia giveaway này!");
         activeGiveaways.delete(messageId);
         return;
     }
@@ -1081,13 +1081,13 @@ client.on("messageCreate", async (message) => {
         if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers))
             return tempReply(
                 message,
-                `❌ Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cấm thành viên.`
+                `<:daucheo:1548201999886057484> Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cấm thành viên.`
             );
 
         const member = message.mentions.members.first();
 
         if (!member)
-            return tempReply(message, "❌ Hãy mention người cần ban.");
+            return tempReply(message, "<:daucheo:1548201999886057484> Hãy mention người cần ban.");
 
         const reason = args.slice(1).join(" ") || "Không có lý do.";
 
@@ -1111,13 +1111,13 @@ client.on("messageCreate", async (message) => {
         if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers))
             return tempReply(
                 message,
-                `❌ Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cấm thành viên (Unban).`
+                `<:daucheo:1548201999886057484> Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cấm thành viên (Unban).`
             );
 
         const userId = args[0];
 
         if (!userId)
-            return tempReply(message, "❌ Hãy nhập ID của người cần unban. (Ví dụ: `hunban 123456789012345678`)");
+            return tempReply(message, "<:daucheo:1548201999886057484> Hãy nhập ID của người cần unban. (Ví dụ: `hunban 123456789012345678`)");
 
         const reason = args.slice(1).join(" ") || "Không có lý do.";
 
@@ -1135,7 +1135,7 @@ client.on("messageCreate", async (message) => {
 
             return message.reply({ embeds: [embed] });
         } catch (error) {
-            return tempReply(message, "❌ Không tìm thấy ID này trong danh sách bị ban hoặc ID không hợp lệ!");
+            return tempReply(message, "<:daucheo:1548201999886057484> Không tìm thấy ID này trong danh sách bị ban hoặc ID không hợp lệ!");
         }
     }
 
@@ -1145,13 +1145,13 @@ client.on("messageCreate", async (message) => {
               if (!message.member.permissions.has(PermissionsBitField.Flags.KickMembers))
             return tempReply(
                 message,
-                `❌ Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Kick thành viên (kick).`
+                `<:daucheo:1548201999886057484> Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Kick thành viên (kick).`
             );
 
         const member = message.mentions.members.first();
 
         if (!member)
-            return tempReply(message, "❌ Hãy mention người cần kick.");
+            return tempReply(message, "<:daucheo:1548201999886057484> Hãy mention người cần kick.");
 
         const reason = args.slice(1).join(" ") || "Không có lý do.";
 
@@ -1175,20 +1175,20 @@ if (command === "mute") {
     if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers))
         return tempReply(
             message,
-            `❌ Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Hạn chế thành viên`
+            `<:daucheo:1548201999886057484> Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Hạn chế thành viên`
         );
 
     const member = message.mentions.members.first();
 
     if (!member)
-        return tempReply(message, "❌ Hãy mention người cần mute.");
+        return tempReply(message, "<:daucheo:1548201999886057484> Hãy mention người cần mute.");
 
     const timeArg = args[1];
 
     if (!timeArg)
         return tempReply(
             message,
-            "❌ Hãy nhập thời gian.\nVí dụ: `hmute @user 30s`, `hmute @user 10m`, `hmute @user 36h`."
+            "<:daucheo:1548201999886057484> Hãy nhập thời gian.\nVí dụ: `hmute @user 30s`, `hmute @user 10m`, `hmute @user 36h`."
         );
 
     // Hỗ trợ: s = giây, m = phút, h = giờ
@@ -1197,7 +1197,7 @@ if (command === "mute") {
     if (!match)
         return tempReply(
             message,
-            "❌ Thời gian không hợp lệ.\nDùng `s` = giây, `m` = phút, `h` = giờ."
+            "<:daucheo:1548201999886057484> Thời gian không hợp lệ.\nDùng `s` = giây, `m` = phút, `h` = giờ."
         );
 
     const amount = Number(match[1]);
@@ -1220,7 +1220,7 @@ if (command === "mute") {
     ) {
         return tempReply(
             message,
-            "❌ Thời gian mute phải từ 1 giây đến tối đa 28 ngày."
+            "<:daucheo:1548201999886057484> Thời gian mute phải từ 1 giây đến tối đa 28 ngày."
         );
     }
 
@@ -1267,7 +1267,7 @@ if (command === "mute") {
 
         return tempReply(
             message,
-            "❌ Không thể mute thành viên này. Hãy kiểm tra quyền `Moderate Members` và vị trí role của bot."
+            "<:daucheo:1548201999886057484> Không thể mute thành viên này. Hãy kiểm tra quyền `Moderate Members` và vị trí role của bot."
         );
     }
 }
@@ -1278,13 +1278,13 @@ if (command === "mute") {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers))
             return tempReply(
                 message,
-                `❌ Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Hạn chế thành viên (Moderate Members)`
+                `<:daucheo:1548201999886057484> Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Hạn chế thành viên (Moderate Members)`
             );
 
         const member = message.mentions.members.first();
 
         if (!member)
-            return tempReply(message, "❌ Hãy mention người cần unmute.");
+            return tempReply(message, "<:daucheo:1548201999886057484> Hãy mention người cần unmute.");
 
         const reason = args.slice(1).join(" ") || "Không có lý do.";
 
@@ -1316,7 +1316,7 @@ if (command === "mute") {
 
             return tempReply(
                 message,
-                "❌ Không thể unmute thành viên này. Hãy kiểm tra quyền `Moderate Members` và vị trí role của bot."
+                "<:daucheo:1548201999886057484> Không thể unmute thành viên này. Hãy kiểm tra quyền `Moderate Members` và vị trí role của bot."
             );
         }
     }
@@ -1327,13 +1327,13 @@ if (command === "mute") {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers))
             return tempReply(
                 message,
-                `❌ Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cảnh báo thành viên`
+                `<:daucheo:1548201999886057484> Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cảnh báo thành viên`
             );
 
         const member = message.mentions.members.first();
 
         if (!member)
-            return tempReply(message, "❌ Hãy mention người cần warn.");
+            return tempReply(message, "<:daucheo:1548201999886057484> Hãy mention người cần warn.");
 
         const reason = args.slice(1).join(" ") || "Không có lý do.";
 
@@ -1367,21 +1367,21 @@ if (command === "mute") {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers))
             return tempReply(
                 message,
-                `❌ Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cảnh báo thành viên`
+                `<:daucheo:1548201999886057484> Bạn không có quyền để sử dụng lệnh này!\n\n📌 Quyền hạn: Cảnh báo thành viên`
             );
 
         const member = message.mentions.members.first();
 
         if (!member)
-            return tempReply(message, "❌ Hãy mention người cần xóa warn.");
+            return tempReply(message, "<:daucheo:1548201999886057484> Hãy mention người cần xóa warn.");
 
         if (!warns[member.id] || warns[member.id].length === 0)
-            return tempReply(message, "❌ Thành viên này không có warn nào để xóa.");
+            return tempReply(message, "<:daucheo:1548201999886057484> Thành viên này không có warn nào để xóa.");
 
         const index = parseInt(args[1]) - 1;
 
         if (isNaN(index) || index < 0 || !warns[member.id][index])
-            return tempReply(message, `❌ Số thứ tự warn không hợp lệ. Hãy dùng \`${prefix}hcwarn @user\` để xem đúng số thứ tự.`);
+            return tempReply(message, `<:daucheo:1548201999886057484> Số thứ tự warn không hợp lệ. Hãy dùng \`${prefix}hcwarn @user\` để xem đúng số thứ tự.`);
 
         const removed = warns[member.id].splice(index, 1)[0];
 
@@ -1412,7 +1412,7 @@ if (command === "mute") {
             const embed = new EmbedBuilder()
                 .setColor("#cf6aca")
                 .setTitle("📊 Thông tin cảnh cáo")
-                .setDescription(`<a:tikhong:1542901135088812092> ${member} hiện không có cảnh cáo nào.`);
+                .setDescription(`:dautick:1548201957787836506> ${member} hiện không có cảnh cáo nào.`);
                 
             return message.reply({ embeds: [embed] });
         }
@@ -1438,7 +1438,7 @@ if (command === "mute") {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
             const errEmbed = new EmbedBuilder()
                 .setColor("#ff0000")
-                .setTitle("❌ Không có quyền")
+                .setTitle("<:daucheo:1548201999886057484> Không có quyền")
                 .setDescription(
                     "Bạn không có quyền để sử dụng lệnh này!\n\n" +
                     "📌 Quyền hạn: Quản lý kênh (Manage Channels)."
@@ -1453,7 +1453,7 @@ if (command === "mute") {
         if (!botMember.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
             const errEmbed = new EmbedBuilder()
                 .setColor("#ff0000")
-                .setTitle("❌ Bot thiếu quyền")
+                .setTitle("<:daucheo:1548201999886057484> Bot thiếu quyền")
                 .setDescription("Bot cần quyền **Manage Channels** để khóa kênh.");
 
             return message.reply({ embeds: [errEmbed] });
@@ -1466,7 +1466,7 @@ if (command === "mute") {
 
             const embed = new EmbedBuilder()
                 .setColor("#cf6aca")
-                .setTitle("<a:tikhong:1542901135088812092> Khóa kênh thành công")
+                .setTitle(":dautick:1548201957787836506> Khóa kênh thành công")
                 .setDescription(
                     `Đã khóa kênh ${targetChannel}.`
                 )
@@ -1490,7 +1490,7 @@ if (command === "mute") {
             console.error("[LOCK ERROR]", error);
             const errEmbed = new EmbedBuilder()
                 .setColor("#ff0000")
-                .setTitle("❌ Không thể khóa kênh")
+                .setTitle("<:daucheo:1548201999886057484> Không thể khóa kênh")
                 .setDescription("Đã xảy ra lỗi khi khóa kênh này.");
 
             return message.reply({ embeds: [errEmbed] });
@@ -1503,7 +1503,7 @@ if (command === "mute") {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
             const errEmbed = new EmbedBuilder()
                 .setColor("#ff0000")
-                .setTitle("❌ Không có quyền")
+                .setTitle("<:daucheo:1548201999886057484> Không có quyền")
                 .setDescription(
                     "Bạn không có quyền để sử dụng lệnh này!\n\n" +
                     "📌 Quyền hạn: Quản lý kênh (Manage Channels)."
@@ -1518,7 +1518,7 @@ if (command === "mute") {
         if (!botMember.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
             const errEmbed = new EmbedBuilder()
                 .setColor("#ff0000")
-                .setTitle("❌ Bot thiếu quyền")
+                .setTitle("<:daucheo:1548201999886057484> Bot thiếu quyền")
                 .setDescription("Bot cần quyền **Manage Channels** để mở khóa kênh.");
 
             return message.reply({ embeds: [errEmbed] });
@@ -1531,7 +1531,7 @@ if (command === "mute") {
 
             const embed = new EmbedBuilder()
                 .setColor("#cf6aca")
-                .setTitle("<a:tikhong:1542901135088812092> Mở khóa kênh thành công")
+                .setTitle(":dautick:1548201957787836506> Mở khóa kênh thành công")
                 .setDescription(
                     `Đã mở khóa kênh ${targetChannel}.`
                 )
@@ -1555,7 +1555,7 @@ if (command === "mute") {
             console.error("[UNLOCK ERROR]", error);
             const errEmbed = new EmbedBuilder()
                 .setColor("#ff0000")
-                .setTitle("❌ Không thể mở khóa kênh")
+                .setTitle("<:daucheo:1548201999886057484> Không thể mở khóa kênh")
                 .setDescription("Đã xảy ra lỗi khi mở khóa kênh này.");
 
             return message.reply({ embeds: [errEmbed] });
@@ -1566,19 +1566,19 @@ if (command === "mute") {
     if (command === "gastart") {
 
         if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages))
-            return tempReply(message, "❌ Bạn không có quyền quản lý tin nhắn để tạo giveaway!");
+            return tempReply(message, "<:daucheo:1548201999886057484> Bạn không có quyền quản lý tin nhắn để tạo giveaway!");
 
         const timeArg = args[0];
         const winArg = args[1];
         const title = args.slice(2).join(" ");
 
         if (!timeArg || !winArg || !title)
-            return tempReply(message, `❌ Sai cú pháp! Hãy sử dụng: \`${prefix}gastart <time> <win> <title>\`!`);
+            return tempReply(message, `<:daucheo:1548201999886057484> Sai cú pháp! Hãy sử dụng: \`${prefix}gastart <time> <win> <title>\`!`);
 
         const timeRegex = /^(\d+)([smhd])$/i;
         const match = timeArg.match(timeRegex);
         if (!match)
-            return tempReply(message, "❌ Thời gian không hợp lệ! Dùng định dạng như: `30s`, `5m`, `2h`, `1d`.");
+            return tempReply(message, "<:daucheo:1548201999886057484> Thời gian không hợp lệ! Dùng định dạng như: `30s`, `5m`, `2h`, `1d`.");
 
         const value = parseInt(match[1]);
         const unit = match[2].toLowerCase();
@@ -1589,11 +1589,11 @@ if (command === "mute") {
         else if (unit === 'h') ms = value * 60 * 60 * 1000;
         else if (unit === 'd') ms = value * 24 * 60 * 60 * 1000;
 
-        if (ms <= 0) return tempReply(message, "❌ Thời gian phải lớn hơn 0!");
+        if (ms <= 0) return tempReply(message, "<:daucheo:1548201999886057484> Thời gian phải lớn hơn 0!");
 
         const winnerCount = parseInt(winArg.replace(/w/gi, ''));
         if (isNaN(winnerCount) || winnerCount <= 0)
-            return tempReply(message, "❌ Số lượng người thắng không hợp lệ! (Ví dụ: `1` hoặc `1w`)");
+            return tempReply(message, "<:daucheo:1548201999886057484> Số lượng người thắng không hợp lệ! (Ví dụ: `1` hoặc `1w`)");
 
         message.delete().catch(() => {});
 
@@ -1643,22 +1643,22 @@ if (command === "mute") {
     // ga stop
     if (command === "gastop") {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages))
-            return tempReply(message, "❌ Bạn không có quyền quản lý tin nhắn để dừng giveaway!");
+            return tempReply(message, "<:daucheo:1548201999886057484> Bạn không có quyền quản lý tin nhắn để dừng giveaway!");
 
         const messageId = args[0];
         if (!messageId)
-            return tempReply(message, `❌ Vui lòng nhập ID tin nhắn của giveaway! (Ví dụ: \`${prefix}gastop <message_id>\`)`);
+            return tempReply(message, `<:daucheo:1548201999886057484> Vui lòng nhập ID tin nhắn của giveaway! (Ví dụ: \`${prefix}gastop <message_id>\`)`);
 
         const gaData = activeGiveaways.get(messageId);
         if (!gaData)
-            return tempReply(message, "❌ Không tìm thấy giveaway đang chạy với ID này (hoặc giveaway này đã kết thúc trước đó).");
+            return tempReply(message, "<:daucheo:1548201999886057484> Không tìm thấy giveaway đang chạy với ID này (hoặc giveaway này đã kết thúc trước đó).");
 
         clearTimeout(gaData.timeoutId);
 
         const channel = await client.channels.fetch(gaData.channelId).catch(() => null);
         if (!channel) {
             activeGiveaways.delete(messageId);
-            return tempReply(message, "❌ Không tìm thấy kênh chứa giveaway này.");
+            return tempReply(message, "<:daucheo:1548201999886057484> Không tìm thấy kênh chứa giveaway này.");
         }
 
         await finishGiveaway(channel, messageId, gaData.title, gaData.creator, gaData.winnerCount, gaData.giveawayMsg);
@@ -1668,19 +1668,19 @@ if (command === "mute") {
     // ga rr
     if (command === "gareroll") {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages))
-            return tempReply(message, "❌ Bạn không có quyền quản lý tin nhắn để quay lại người thắng giveaway!");
+            return tempReply(message, "<:daucheo:1548201999886057484> Bạn không có quyền quản lý tin nhắn để quay lại người thắng giveaway!");
 
         const messageId = args[0];
         if (!messageId)
-            return tempReply(message, `❌ Vui lòng nhập ID tin nhắn của giveaway! (Ví dụ: \`${prefix}gareroll <message_id>\`)`);
+            return tempReply(message, `<:daucheo:1548201999886057484> Vui lòng nhập ID tin nhắn của giveaway! (Ví dụ: \`${prefix}gareroll <message_id>\`)`);
 
         const fetchedMsg = await message.channel.messages.fetch(messageId).catch(() => null);
         if (!fetchedMsg)
-            return tempReply(message, "❌ Không tìm thấy tin nhắn giveaway với ID này trong kênh hiện tại.");
+            return tempReply(message, "<:daucheo:1548201999886057484> Không tìm thấy tin nhắn giveaway với ID này trong kênh hiện tại.");
 
         const embed = fetchedMsg.embeds[0];
         if (!embed)
-            return tempReply(message, "❌ Tin nhắn này không chứa thông tin giveaway hợp lệ.");
+            return tempReply(message, "<:daucheo:1548201999886057484> Tin nhắn này không chứa thông tin giveaway hợp lệ.");
 
         const title = embed.title || "Giveaway";
         
@@ -1690,13 +1690,13 @@ if (command === "mute") {
 
         const reaction = fetchedMsg.reactions.cache.get("1531654953461088447") || fetchedMsg.reactions.cache.first();
         if (!reaction)
-            return tempReply(message, "❌ Không tìm thấy lượt tương tác (reaction) nào trên tin nhắn này.");
+            return tempReply(message, "<:daucheo:1548201999886057484> Không tìm thấy lượt tương tác (reaction) nào trên tin nhắn này.");
 
         const users = await reaction.users.fetch();
         const participantArray = Array.from(users.filter(u => !u.bot).keys());
 
         if (participantArray.length === 0)
-            return tempReply(message, "❌ Không có người tham gia hợp lệ nào trong giveaway này để quay lại!");
+            return tempReply(message, "<:daucheo:1548201999886057484> Không có người tham gia hợp lệ nào trong giveaway này để quay lại!");
 
         const randomUserId = participantArray[Math.floor(Math.random() * participantArray.length)];
         const winnerMention = `<@${randomUserId}>`;
@@ -1710,7 +1710,7 @@ if (command === "mute") {
         const targetUser = repliedMessage ? repliedMessage.author : (message.mentions.users.first() || message.author);
 
         if (targetUser.bot)
-            return tempReply(message, "❌ Không thể yêu cầu xem avatar của bot!");
+            return tempReply(message, "<:daucheo:1548201999886057484> Không thể yêu cầu xem avatar của bot!");
 
         // soi av cua minh
         if (targetUser.id === message.author.id) {
@@ -1764,7 +1764,7 @@ else if (command === "role") {
     if (!message.member.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
         const errEmbed = new EmbedBuilder()
             .setColor("#ff0000")
-            .setTitle("❌ Không có quyền")
+            .setTitle("<:daucheo:1548201999886057484> Không có quyền")
             .setDescription(
                 "Bạn không có quyền để sử dụng lệnh này!\n\n" +
                 "📌 Quyền hạn: Quản lý vai trò (Manage Roles)."
@@ -1780,7 +1780,7 @@ else if (command === "role") {
     if (queryArgs.length === 0) {
         const errEmbed = new EmbedBuilder()
             .setColor("#ff0000")
-            .setTitle("❌ Thiếu thông tin")
+            .setTitle("<:daucheo:1548201999886057484> Thiếu thông tin")
             .setDescription(
                 `Hãy nhập tên role hoặc thời gian!\n\n` +
                 `📌 Ví dụ: \`${prefix}role Cư dân\`\n` +
@@ -1814,7 +1814,7 @@ else if (command === "role") {
     if (!roleQuery) {
         const errEmbed = new EmbedBuilder()
             .setColor("#ff0000")
-            .setTitle("❌ Thiếu tên role")
+            .setTitle("<:daucheo:1548201999886057484> Thiếu tên role")
             .setDescription("Vui lòng nhập tên role cần thêm/gỡ!");
         return message.reply({ embeds: [errEmbed] });
     }
@@ -1830,7 +1830,7 @@ else if (command === "role") {
     if (!roleToModify) {
         const errEmbed = new EmbedBuilder()
             .setColor("#ff0000")
-            .setTitle("❌ Không tìm thấy role")
+            .setTitle("<:daucheo:1548201999886057484> Không tìm thấy role")
             .setDescription(`Không tìm thấy role nào phù hợp với **${roleQuery}**!`);
 
         return message.reply({ embeds: [errEmbed] });
@@ -1841,7 +1841,7 @@ else if (command === "role") {
     if (!botMember || !botMember.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
         const errEmbed = new EmbedBuilder()
             .setColor("#ff0000")
-            .setTitle("❌ Bot thiếu quyền")
+            .setTitle("<:daucheo:1548201999886057484> Bot thiếu quyền")
             .setDescription("Bot cần quyền **Manage Roles** để thực hiện lệnh này.");
 
         return message.reply({ embeds: [errEmbed] });
@@ -1850,7 +1850,7 @@ else if (command === "role") {
     if (roleToModify.id === message.guild.id || roleToModify.managed) {
         const errEmbed = new EmbedBuilder()
             .setColor("#ff0000")
-            .setTitle("❌ Role không hợp lệ")
+            .setTitle("<:daucheo:1548201999886057484> Role không hợp lệ")
             .setDescription("Không thể thêm hoặc gỡ role này.");
 
         return message.reply({ embeds: [errEmbed] });
@@ -1860,7 +1860,7 @@ else if (command === "role") {
     if (roleToModify.position >= botMember.roles.highest.position) {
         const errEmbed = new EmbedBuilder()
             .setColor("#ff0000")
-            .setTitle("❌ Lỗi phân cấp role")
+            .setTitle("<:daucheo:1548201999886057484> Lỗi phân cấp role")
             .setDescription("Bot không thể thêm/gỡ role này vì role đó cao hơn hoặc ngang bằng role cao nhất của bot.");
 
         return message.reply({ embeds: [errEmbed] });
@@ -1873,7 +1873,7 @@ else if (command === "role") {
 
             const embed = new EmbedBuilder()
                 .setColor("#cf6aca")
-                .setTitle("❌ Gỡ Role thành công")
+                .setTitle("<:daucheo:1548201999886057484> Gỡ Role thành công")
                 .setDescription(`Đã gỡ role ${roleToModify} khỏi ${memberToModify}.`)
                 .addFields(
                     { name: "<:own:1538912708764631100> Moderator", value: message.author.tag, inline: true },
@@ -1889,7 +1889,7 @@ else if (command === "role") {
 
         const embed = new EmbedBuilder()
             .setColor("#cf6aca")
-            .setTitle("<a:tikhong:1542901135088812092> Thêm Role thành công")
+            .setTitle(":dautick:1548201957787836506> Thêm Role thành công")
             .setDescription(`Đã thêm role ${roleToModify} cho ${memberToModify}.` + (timeString ? `\n⏱️ **Thời hạn:** ${timeString}` : ""))
             .addFields(
                 { name: "<:own:1538912708764631100> Moderator", value: message.author.tag, inline: true },
@@ -1932,7 +1932,7 @@ else if (command === "role") {
         console.error("[ROLE ERROR]", error);
         const errEmbed = new EmbedBuilder()
             .setColor("#ff0000")
-            .setTitle("❌ Lỗi")
+            .setTitle("<:daucheo:1548201999886057484> Lỗi")
             .setDescription("Đã xảy ra lỗi khi cấp hoặc gỡ role.");
         return message.reply({ embeds: [errEmbed] });
     }
@@ -1952,25 +1952,25 @@ else if (command === "role") {
                         label: "Quản trị (Moderation)",
                         description: "Các lệnh ban, unban, kick, mute",
                         value: "help_mod",
-                        emoji: "<a:saodoto:1529738089918890106>"
+                        emoji: "<:seraph:1538958496035246222>"
                     },
                     {
                         label: "Cảnh cáo (Warn)",
                         description: "Các lệnh warn, hcwarn, hrwarn",
                         value: "help_warn",
-                        emoji: "<a:saohongto:1529736991598575626>"
+                        emoji: "<:single:1538960719054372936>"
                     },
                     {
                         label: "Giveaway",
                         description: "Lệnh tạo và quản lý giveaway",
                         value: "help_ga",
-                        emoji: "<a:saotimto:1529563552464244939>"
+                        emoji: "<:lovestruck:1538958699396337704>"
                     },
                     {
                         label: "User",
                         description: "Lệnh thuộc user",
                         value: "help_user",
-                        emoji: "<a:saoxanhto:1529737259518263386>"
+                        emoji: "<:witch:1538935018284654592>"
                     }
                 ])
         );
@@ -2078,11 +2078,11 @@ client.on("interactionCreate", async (interaction) => {
                         name: interaction.guild.name, 
                         iconURL: interaction.guild.iconURL({ dynamic: true }) 
                     })
-                    .setTitle("<:dautick:1548201957787836506> Danh sách lệnh User")
+                    .setTitle("<:witch:1538935018284654592> Danh sách lệnh User")
                     .setDescription(
                         `### \`${prefix}avatar\`\n` +
                         `* **Mô tả** : Xem avatar của bạn hoặc yêu cầu xem của người khác.\n` +
-                        `* **Lệnh** : \`${prefix}avatar <@user> | ${prefix}av <@user>\`\n\n` 
+                        `* **Lệnh** : \`${prefix}av <@user>\`\n\n` 
                     )
                     .setFooter({ text: `Tổng 4 danh mục lệnh`, iconURL: client.user.displayAvatarURL() })
                     .setTimestamp();
@@ -2106,7 +2106,7 @@ client.on("interactionCreate", async (interaction) => {
 
             if (interaction.user.id !== targetUserId) {
                 return interaction.reply({
-                    content: "❌ Bạn không phải là người được yêu cầu xem avatar nên không thể bấm nút này!",
+                    content: "<:daucheo:1548201999886057484> Bạn không phải là người được yêu cầu xem avatar nên không thể bấm nút này!",
                     ephemeral: true
                 });
             }
@@ -2121,7 +2121,7 @@ client.on("interactionCreate", async (interaction) => {
                     .setAuthor({ name: interaction.guild.name, iconURL: interaction.guild.iconURL({ dynamic: true }) })
                     .setTitle(`Avatar của ${fetchedTarget ? fetchedTarget.tag : interaction.user.tag}`)
                     .setImage(avatarURL)
-                    .setDescription(`<a:tikhong:1542901135088812092> Đã chấp nhận yêu cầu xem avatar từ <@${requesterId}>`)
+                    .setDescription(`:dautick:1548201957787836506> Đã chấp nhận yêu cầu xem avatar từ <@${requesterId}>`)
                     .setFooter({ text: `Được yêu cầu bởi ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
                     .setTimestamp();
 
@@ -2136,7 +2136,7 @@ client.on("interactionCreate", async (interaction) => {
                 const deniedEmbed = new EmbedBuilder()
                     .setColor("#ff4d4d")
                     .setTitle("Yêu cầu xem avatar")
-                    .setDescription(`❌ ${interaction.user} đã **từ chối** yêu cầu xem avatar từ <@${requesterId}>`)
+                    .setDescription(`<:daucheo:1548201999886057484> ${interaction.user} đã **từ chối** yêu cầu xem avatar từ <@${requesterId}>`)
                     .setTimestamp();
 
                 return interaction.update({
@@ -2170,30 +2170,30 @@ client.on("interactionCreate", async (interaction) => {
                 .setTimestamp();
 
             if (type === "uavatar") {
-                if (!fetchedTarget) return interaction.reply({ content: "❌ Không tìm thấy thông tin người dùng!", ephemeral: true });
+                if (!fetchedTarget) return interaction.reply({ content: "<:daucheo:1548201999886057484> Không tìm thấy thông tin người dùng!", ephemeral: true });
                 newEmbed.setTitle(`Avatar cá nhân của ${fetchedTarget.tag}`);
                 newEmbed.setImage(fetchedTarget.displayAvatarURL({ size: 1024, dynamic: true }));
             } 
             else if (type === "ubanner") {
-                if (!fetchedTarget) return interaction.reply({ content: "❌ Không tìm thấy thông tin người dùng!", ephemeral: true });
+                if (!fetchedTarget) return interaction.reply({ content: "<:daucheo:1548201999886057484> Không tìm thấy thông tin người dùng!", ephemeral: true });
                 const bannerURL = fetchedTarget.bannerURL({ size: 1024, dynamic: true });
                 if (!bannerURL) {
-                    return interaction.reply({ content: `❌ Người dùng **${fetchedTarget.tag}** không có banner cá nhân!`, ephemeral: true });
+                    return interaction.reply({ content: `<:daucheo:1548201999886057484> Người dùng **${fetchedTarget.tag}** không có banner cá nhân!`, ephemeral: true });
                 }
                 newEmbed.setTitle(`Banner cá nhân của ${fetchedTarget.tag}`);
                 newEmbed.setImage(bannerURL);
             } 
             else if (type === "savatar") {
-                if (!member) return interaction.reply({ content: "❌ Không tìm thấy thành viên này trong server!", ephemeral: true });
+                if (!member) return interaction.reply({ content: "<:daucheo:1548201999886057484> Không tìm thấy thành viên này trong server!", ephemeral: true });
                 const serverAvatar = member.displayAvatarURL({ size: 1024, dynamic: true });
                 newEmbed.setTitle(`Server Avatar của ${member.user.tag}`);
                 newEmbed.setImage(serverAvatar);
             } 
             else if (type === "sbanner") {
-                if (!member) return interaction.reply({ content: "❌ Không tìm thấy thành viên này trong server!", ephemeral: true });
+                if (!member) return interaction.reply({ content: "<:daucheo:1548201999886057484> Không tìm thấy thành viên này trong server!", ephemeral: true });
                 const serverBanner = member.bannerURL({ size: 1024, dynamic: true });
                 if (!serverBanner) {
-                    return interaction.reply({ content: `❌ Thành viên **${member.user.tag}** không có Server Banner riêng trong server này!`, ephemeral: true });
+                    return interaction.reply({ content: `<:daucheo:1548201999886057484> Thành viên **${member.user.tag}** không có Server Banner riêng trong server này!`, ephemeral: true });
                 }
                 newEmbed.setTitle(`Server Banner của ${member.user.tag}`);
                 newEmbed.setImage(serverBanner);
