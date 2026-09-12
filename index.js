@@ -213,6 +213,11 @@ function isImageAttachment(a) {
   return /\.(png|jpe?g|gif|webp)$/i.test(a.name || "");
 }
 
+function isVideoAttachment(a) {
+  if (a.contentType?.startsWith("video/")) return true;
+  return /\.(mp4|webm|mov|mkv)$/i.test(a.name || "");
+}
+
 function getAttachments(message) {
   return [...message.attachments.values()].filter(isImageAttachment);
 }
@@ -454,7 +459,7 @@ if (!sub) {
   const needsManager = ["create", "delete", "content", "title", "desc", "color", "footer", "thumb", "image", "type", "mode", "on", "off"].includes(sub);
 
   if (needsManager && !hasAutoResManagerRole(message)) {
-    return message.channel.send("<a:joe_deo:1543982900352000010> Bạn không có quyền AutoRes.");
+    return message.channel.send("<:ngu:1527286035770507354> Bạn không có quyền AutoRes.");
   }
 
   if (sub === "create") {
@@ -475,13 +480,13 @@ if (!sub) {
       createdBy: message.author.id,
     });
     saveAutoRes(autoRes);
-    return message.channel.send(`<a:daucheck:1543227340648087614> Đã tạo AutoRes **${guildData[key].trigger}** dạng **${type}**.`);
+    return message.channel.send(`<:k:1548201957787836506> Đã tạo AutoRes **${guildData[key].trigger}** dạng **${type}**.`);
   }
 
   if (sub === "list") {
     const entries = Object.values(guildData);
     if (!entries.length) return message.channel.send("<a:bow3:1543226020512014427> Server chưa có AutoRes nào.");
-    const lines = entries.map((r, i) => `${i + 1}. ${r.enabled ? "<a:daucheck:1543227340648087614>" : "<a:dau_x:1543980848888549458>"} **${r.trigger}** — ${r.type} — ${r.mode}`);
+    const lines = entries.map((r, i) => `${i + 1}. ${r.enabled ? "<:dautick:1548201957787836506>" : "<:daucheo:1548201999886057484>"} **${r.trigger}** — ${r.type} — ${r.mode}`);
     return message.channel.send(`**<a:bow3:1543226020512014427> AutoRes (${entries.length})**\n${lines.join("\n")}`);
   }
 
@@ -491,7 +496,7 @@ if (!sub) {
     removeLocalImage(record.embed.image);
     delete guildData[normalizeTrigger(trigger)];
     saveAutoRes(autoRes);
-    return message.channel.send(`<a:milk2:1543226670276808714> Đã xóa AutoRes **${record.trigger}**.`);
+    return message.channel.send(`<:noxanh:1548212422630842379> Đã xóa AutoRes **${record.trigger}**.`);
   }
 
   if (!record) return message.channel.send(`Không tìm thấy AutoRes. Dùng \`${prefix}ar list\` để xem danh sách.`);
@@ -499,7 +504,7 @@ if (!sub) {
   if (sub === "on" || sub === "off") {
     record.enabled = sub === "on";
     saveAutoRes(autoRes);
-    return message.channel.send(`${record.enabled ? "<a:daucheck:1543227340648087614> Đã bật" : "<a:dau_x:1543980848888549458> Đã tắt"} AutoRes **${record.trigger}**.`);
+    return message.channel.send(`${record.enabled ? "<:dautick:1548201957787836506> Đã bật" : "<:daucheo:1548201999886057484> Đã tắt"} AutoRes **${record.trigger}**.`);
   }
 
   if (sub === "type") {
@@ -507,7 +512,7 @@ if (!sub) {
     if (!["text", "embed"].includes(type)) return message.channel.send(`Dùng: \`${prefix}ar type "hello" text|embed\``);
     record.type = type;
     saveAutoRes(autoRes);
-    return message.channel.send(`<a:daucheck:1543227340648087614> AutoRes **${record.trigger}** giờ là **${type}**.`);
+    return message.channel.send(`<:dautick:1548201957787836506> AutoRes **${record.trigger}** giờ là **${type}**.`);
   }
 
   if (sub === "mode") {
@@ -515,13 +520,13 @@ if (!sub) {
     if (!["exact", "contains"].includes(mode)) return message.channel.send(`Dùng: \`${prefix}ar mode "hello" exact|contains\``);
     record.mode = mode;
     saveAutoRes(autoRes);
-    return message.channel.send(`<a:daucheck:1543227340648087614> Trigger **${record.trigger}** dùng mode **${mode}**.`);
+    return message.channel.send(`<:dautick:1548201957787836506> Trigger **${record.trigger}** dùng mode **${mode}**.`);
   }
 
   if (sub === "content") {
     record.content = args.slice(1).join(" ").trim();
     saveAutoRes(autoRes);
-    return message.channel.send(`<a:daucheck:1543227340648087614> Đã cập nhật nội dung AutoRes **${record.trigger}**.`);
+    return message.channel.send(`<:dautick:1548201957787836506> Đã cập nhật nội dung AutoRes **${record.trigger}**.`);
   }
 
   if (sub === "title" || sub === "desc" || sub === "footer") {
@@ -529,7 +534,7 @@ if (!sub) {
     const field = sub === "desc" ? "description" : sub;
     record.embed[field] = value;
     saveAutoRes(autoRes);
-    return message.channel.send(`<a:daucheck:1543227340648087614> Đã cập nhật ${field} cho **${record.trigger}**.`);
+    return message.channel.send(`<:dautick:1548201957787836506> Đã cập nhật ${field} cho **${record.trigger}**.`);
   }
 
   if (sub === "color") {
@@ -551,10 +556,10 @@ if (!sub) {
       record.embed[field] = stored;
       removeLocalImage(old);
       saveAutoRes(autoRes);
-      return message.channel.send(`<a:daucheck:1543227340648087614> Đã cập nhật ${sub === "thumb" ? "thumbnail" : "image"} cho AutoRes **${record.trigger}**.`);
+      return message.channel.send(`<:dautick:1548201957787836506> Đã cập nhật ${sub === "thumb" ? "thumbnail" : "image"} cho AutoRes **${record.trigger}**.`);
     } catch (error) {
       console.error(error);
-      return message.channel.send("<a:milk1:1543226643961610352> Không thể lưu ảnh AutoRes.");
+      return message.channel.send("<:nohong:1548212367681388605> Không thể lưu ảnh AutoRes.");
     }
   }
 
@@ -606,20 +611,20 @@ async function handleAutoResCreateModal(interaction) {
   const token = interaction.customId.slice("ar_create_modal:".length);
   const pending = pendingAutoResCreates.get(token);
   if (!pending) {
-    await interaction.reply({ content: "<a:milk1:1543226643961610352> Phiên tạo AutoRes đã hết hạn. Hãy dùng lại `/ar create`.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "<:nohong:1548212367681388605> Phiên tạo AutoRes đã hết hạn. Hãy dùng lại `/ar create`.", flags: MessageFlags.Ephemeral });
     return true;
   }
   pendingAutoResCreates.delete(token);
 
   if (pending.userId !== interaction.user.id || pending.guildId !== interaction.guildId) {
-    await interaction.reply({ content: "<a:joe_deo:1543982900352000010> Bạn không thể dùng form AutoRes này.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "<:ngu:1527286035770507354> Bạn không thể dùng form AutoRes này.", flags: MessageFlags.Ephemeral });
     return true;
   }
 
   const guildData = getGuildAutoRes(interaction.guild.id);
   const key = normalizeTrigger(pending.trigger);
   if (guildData[key]) {
-    await interaction.reply({ content: "<:pink_warning:1543983381279146055> AutoRes này đã tồn tại.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "<a:tukjan:1548204681535164447> AutoRes này đã tồn tại.", flags: MessageFlags.Ephemeral });
     return true;
   }
 
@@ -634,7 +639,7 @@ async function handleAutoResCreateModal(interaction) {
     if (colorValue === "reset") color = 0x5865f2;
     else if (/^#?[0-9a-f]{6}$/i.test(colorValue)) color = parseInt(colorValue.replace("#", ""), 16);
     else {
-      await interaction.reply({ content: "<a:milk1:1543226643961610352> Màu không hợp lệ. Dùng `#ff69b4` hoặc để trống.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "<:nohong:1548212367681388605> Màu không hợp lệ. Dùng `#ff69b4` hoặc để trống.", flags: MessageFlags.Ephemeral });
       return true;
     }
   }
@@ -652,7 +657,7 @@ async function handleAutoResCreateModal(interaction) {
   saveAutoRes(autoRes);
 
   await interaction.reply({
-    content: `<a:daucheck:1543227340648087614> Đã tạo AutoRes **${pending.trigger}** dạng **${pending.type}**${content ? " và đã đặt content." : "."}`,
+    content: `<:dautick:1548201957787836506> Đã tạo AutoRes **${pending.trigger}** dạng **${pending.type}**${content ? " và đã đặt content." : "."}`,
     flags: MessageFlags.Ephemeral,
   });
   return true;
@@ -661,7 +666,7 @@ async function handleAutoResCreateModal(interaction) {
 async function handleAutoResSlash(interaction) {
   if (!interaction.isChatInputCommand() || interaction.commandName !== "ar") return false;
   if (!interaction.guild) {
-    await interaction.reply({ content: "<a:milk1:1543226643961610352> Lệnh này chỉ dùng trong server.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "<:nohong:1548212367681388605> Lệnh này chỉ dùng trong server.", flags: MessageFlags.Ephemeral });
     return true;
   }
 
@@ -670,7 +675,7 @@ async function handleAutoResSlash(interaction) {
   if (managerActions.includes(action)) {
     const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => interaction.member);
     if (!hasAutoResManagerRole({ guild: interaction.guild, member })) {
-      await interaction.reply({ content: "<a:joe_deo:1543982900352000010> Bạn không có quyền AutoRes.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "<:ngu:1527286035770507354> Bạn không có quyền AutoRes.", flags: MessageFlags.Ephemeral });
       return true;
     }
   }
@@ -683,7 +688,7 @@ async function handleAutoResSlash(interaction) {
       await interaction.reply("<a:hok:1528801736448409632> Server chưa có AutoRes nào.");
       return true;
     }
-    const lines = entries.map((r, i) => `${i + 1}. ${r.enabled ? "<a:daucheck:1543227340648087614>" : "<a:dau_x:1543980848888549458>"} **${r.trigger}** — ${r.type} — ${r.mode}`);
+    const lines = entries.map((r, i) => `${i + 1}. ${r.enabled ? "<:dautick:1548201957787836506>" : "<:daucheo:1548201999886057484>"} **${r.trigger}** — ${r.type} — ${r.mode}`);
     await interaction.reply(`**<a:bow3:1543226020512014427> AutoRes (${entries.length})**\n${lines.join("\n")}`);
     return true;
   }
@@ -695,11 +700,11 @@ async function handleAutoResSlash(interaction) {
   if (action === "create") {
     const type = interaction.options.getString("type", true);
     if (!key) {
-      await interaction.reply({ content: "<a:milk1:1543226643961610352> Trigger không được để trống.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "<:nohong:1548212367681388605> Trigger không được để trống.", flags: MessageFlags.Ephemeral });
       return true;
     }
     if (guildData[key]) {
-      await interaction.reply({ content: "<:pink_warning:1543983381279146055> AutoRes này đã tồn tại.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "<a:tukjan:1548204681535164447> AutoRes này đã tồn tại.", flags: MessageFlags.Ephemeral });
       return true;
     }
 
@@ -718,7 +723,7 @@ async function handleAutoResSlash(interaction) {
   }
 
   if (!record) {
-    await interaction.reply({ content: "<a:milk1:1543226643961610352> Không tìm thấy AutoRes. Dùng `/ar list` để xem danh sách.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "<:nohong:1548212367681388605> Không tìm thấy AutoRes. Dùng `/ar list` để xem danh sách.", flags: MessageFlags.Ephemeral });
     return true;
   }
 
@@ -727,14 +732,14 @@ async function handleAutoResSlash(interaction) {
     removeLocalImage(record.embed.image);
     delete guildData[normalizeTrigger(record.trigger)];
     saveAutoRes(autoRes);
-    await interaction.reply(`<a:milk2:1543226670276808714> Đã xóa AutoRes **${record.trigger}**.`);
+    await interaction.reply(`<:noxanh:1548212422630842379> Đã xóa AutoRes **${record.trigger}**.`);
     return true;
   }
 
   if (action === "on" || action === "off") {
     record.enabled = action === "on";
     saveAutoRes(autoRes);
-    await interaction.reply(`${record.enabled ? "<a:daucheck:1543227340648087614> Đã bật" : "<a:dau_x:1543980848888549458> Đã tắt"} AutoRes **${record.trigger}**.`);
+    await interaction.reply(`${record.enabled ? "<:dautick:1548201957787836506> Đã bật" : "<:daucheo:1548201999886057484> Đã tắt"} AutoRes **${record.trigger}**.`);
     return true;
   }
 
@@ -762,7 +767,7 @@ async function handleAutoResSlash(interaction) {
       if (value === "reset") record.embed.color = 0x5865f2;
       else if (/^#?[0-9a-f]{6}$/i.test(value)) record.embed.color = parseInt(value.replace("#", ""), 16);
       else {
-        await interaction.reply({ content: "<a:milk1:1543226643961610352> Màu không hợp lệ. Ví dụ `#ff69b4` hoặc `reset`.", flags: MessageFlags.Ephemeral });
+        await interaction.reply({ content: "<:nohong:1548212367681388605> Màu không hợp lệ. Ví dụ `#ff69b4` hoặc `reset`.", flags: MessageFlags.Ephemeral });
         return true;
       }
       changed.push("color");
@@ -783,7 +788,7 @@ async function handleAutoResSlash(interaction) {
       }
     } catch (error) {
       console.error(error);
-      await interaction.reply({ content: "<a:milk1:1543226643961610352> Không thể lưu ảnh AutoRes.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: "<:nohong:1548212367681388605> Không thể lưu ảnh AutoRes.", flags: MessageFlags.Ephemeral });
       return true;
     }
 
@@ -793,7 +798,7 @@ async function handleAutoResSlash(interaction) {
     }
 
     saveAutoRes(autoRes);
-    await interaction.reply(`<a:daucheck:1543227340648087614> Đã cập nhật **${record.trigger}**: ${changed.join(", ")}.`);
+    await interaction.reply(`<:dautick:1548201957787836506> Đã cập nhật **${record.trigger}**: ${changed.join(", ")}.`);
     return true;
   }
 
@@ -896,8 +901,8 @@ function getHomeEmbed(guild, client, prefix) {
         })
         .setDescription(
             `## **Danh sách các lệnh của bot**\n` +
-            `## <a:trangtim:1529563713516998779> prefix : \`${prefix}\`\n` +
-            `**__Bot được dev bởi :__ <@1530444381343973378> dzai vai lon**`
+            `## <a:buom:1547855257055399967> prefix : \`${prefix}\`\n` +
+            `**__Developer :__ <@1530444381343973378>**`
         )
         .setFooter({ text: `Tổng 4 danh mục lệnh`, iconURL: client.user.displayAvatarURL() })
         .setTimestamp();
@@ -926,9 +931,9 @@ async function finishGiveaway(channel, messageId, title, creator, winnerCount, g
             .setTitle(title)
             .setThumbnail(creator.displayAvatarURL({ dynamic: true }))
             .setDescription(
-                `<a:trangtim:1529563713516998779> **Thời gian** : \`Đã kết thúc\`\n` +
-                `<a:trangtim:1529563713516998779> **Tổ chức bởi** : ${creator}\n` +
-                `<a:trangtim:1529563713516998779> **Người chiến thắng** : Không có ai tham gia!`
+                `<a:buom:1547855257055399967> **Thời gian** : \`Đã kết thúc\`\n` +
+                `<a:buom:1547855257055399967> **Tổ chức bởi** : ${creator}\n` +
+                `<a:buom:1547855257055399967> **Người chiến thắng** : Không có ai tham gia!`
             )
             .setImage("https://media.discordapp.net/attachments/1531344159145988136/1547852268114546688/From_Klickpin.com-_18507048539427414-pin-id-18507048539427414.gif?ex=6aa4ed42&is=6aa39bc2&hm=260a4181b53a427407793636e9221033fb700b309b2ae4bdbd0c46ecf95953ff&=")
             .setFooter({ text: `${winnerCount} người thắng | Kết thúc lúc`, iconURL: client.user.displayAvatarURL() })
@@ -963,9 +968,9 @@ async function finishGiveaway(channel, messageId, title, creator, winnerCount, g
         .setTitle(title)
         .setThumbnail(creator.displayAvatarURL({ dynamic: true }))
         .setDescription(
-            `<a:trangtim:1529563713516998779> **Thời gian** : \`Đã kết thúc\`\n` +
-            `<a:trangtim:1529563713516998779> **Tổ chức bởi** : ${creator}\n` +
-            `<a:trangtim:1529563713516998779> **Người chiến thắng** : ${winnerMentions}`
+            `<a:buom:1547855257055399967> **Thời gian** : \`Đã kết thúc\`\n` +
+            `<a:buom:1547855257055399967> **Tổ chức bởi** : ${creator}\n` +
+            `<a:buom:1547855257055399967> **Người chiến thắng** : ${winnerMentions}`
         )
         .setImage("https://media.discordapp.net/attachments/1531344159145988136/1547852268114546688/From_Klickpin.com-_18507048539427414-pin-id-18507048539427414.gif?ex=6aa4ed42&is=6aa39bc2&hm=260a4181b53a427407793636e9221033fb700b309b2ae4bdbd0c46ecf95953ff&=")
         .setFooter({ text: `${winnerCount} người thắng | Kết thúc lúc`, iconURL: client.user.displayAvatarURL() })
@@ -1093,7 +1098,7 @@ client.on("messageCreate", async (message) => {
             .setTitle("🔨 Ban thành công")
             .setDescription(`${member} đã bị ban.`)
             .addFields(
-                { name: "<a:camap:1529737268892274890> Moderator", value: message.author.tag, inline: true },
+                { name: "<:own:1538912708764631100> Moderator", value: message.author.tag, inline: true },
                 { name: "📝 Lý do", value: reason, inline: true }
             );
 
@@ -1124,7 +1129,7 @@ client.on("messageCreate", async (message) => {
                 .setTitle("🔓 Unban thành công")
                 .setDescription(`Đã gỡ ban thành công cho người dùng có ID: \`${userId}\``)
                 .addFields(
-                    { name: "<a:camap:1529737268892274890> Moderator", value: message.author.tag, inline: true },
+                    { name: "<:own:1538912708764631100> Moderator", value: message.author.tag, inline: true },
                     { name: "📝 Lý do", value: reason, inline: true }
                 );
 
@@ -1157,7 +1162,7 @@ client.on("messageCreate", async (message) => {
             .setTitle("👢 Kick thành công")
             .setDescription(`${member} đã bị kick.`)
             .addFields(
-                { name: "<a:camap:1529737268892274890> Moderator", value: message.author.tag, inline: true },
+                { name: "<:own:1538912708764631100> Moderator", value: message.author.tag, inline: true },
                 { name: "📝 Lý do", value: reason, inline: true }
             );
 
@@ -1245,7 +1250,7 @@ if (command === "mute") {
                     inline: true
                 },
                 {
-                    name: "<a:camap:1529737268892274890> Moderator",
+                    name: "<:own:1538912708764631100> Moderator",
                     value: message.author.tag,
                     inline: true
                 },
@@ -1293,7 +1298,7 @@ if (command === "mute") {
                 .setDescription(`${member} đã được gỡ mute.`)
                 .addFields(
                     {
-                        name: "<a:camap:1529737268892274890> Moderator",
+                        name: "<:own:1538912708764631100> Moderator",
                         value: message.author.tag,
                         inline: true
                     },
@@ -1348,7 +1353,7 @@ if (command === "mute") {
             .setTitle("⚠️ Thành viên đã bị cảnh cáo")
             .setDescription(`${member} đã nhận một cảnh cáo.`)
             .addFields(
-                { name: "<a:camap:1529737268892274890> Moderator", value: message.author.tag, inline: true },
+                { name: "<:own:1538912708764631100> Moderator", value: message.author.tag, inline: true },
                 { name: "📝 Lý do", value: reason, inline: true },
                 { name: "📊 Tổng Warn", value: `${warns[member.id].length}`, inline: true }
             );
@@ -1388,7 +1393,7 @@ if (command === "mute") {
 
         const embed = new EmbedBuilder()
             .setColor("#cf6aca")
-            .setTitle("<a:milk2:1543226670276808714> Xóa cảnh cáo thành công")
+            .setTitle("<:noxanh:1548212422630842379> Xóa cảnh cáo thành công")
             .setDescription(`Đã xóa cảnh cáo số **${index + 1}** của ${member}.`)
             .addFields(
                 { name: "📝 Lý do cũ", value: removed.reason, inline: true },
@@ -1467,12 +1472,12 @@ if (command === "mute") {
                 )
                 .addFields(
                     {
-                        name: "<a:camap:1529737268892274890> Moderator",
+                        name: "<:own:1538912708764631100> Moderator",
                         value: message.author.tag,
                         inline: true
                     },
                     {
-                        name: "<a:hoatim:1529735587026964491> Kênh",
+                        name: "<:lovestruck:1538958699396337704> Kênh",
                         value: targetChannel.name,
                         inline: true
                     }
@@ -1532,12 +1537,12 @@ if (command === "mute") {
                 )
                 .addFields(
                     {
-                        name: "<a:camap:1529737268892274890> Moderator",
+                        name: "<:own:1538912708764631100> Moderator",
                         value: message.author.tag,
                         inline: true
                     },
                     {
-                        name: "<a:hoatim:1529735587026964491> Kênh",
+                        name: "<:lovestruck:1538958699396337704> Kênh",
                         value: targetChannel.name,
                         inline: true
                     }
@@ -1605,15 +1610,15 @@ if (command === "mute") {
             .setTitle(title)
             .setThumbnail(creator.displayAvatarURL({ dynamic: true }))
             .setDescription(
-                `<a:trangtim:1529563713516998779> **Thời gian** : <t:${Math.floor(endTime / 1000)}:R> ⏰\n` +
-                `<a:trangtim:1529563713516998779> **Tổ chức bởi** : ${creator}`
+                `<a:buom:1547855257055399967> **Thời gian** : <t:${Math.floor(endTime / 1000)}:R> ⏰\n` +
+                `<a:buom:1547855257055399967> **Tổ chức bởi** : ${creator}`
             )
             .setImage("https://cdn.discordapp.com/attachments/1547595222173622334/1547604677515018332/From_Klickpin.com-_18507048539427414-pin-id-18507048539427414.gif?ex=6aa406ac&is=6aa2b52c&hm=064922ac8df6d0e62e5e567bb1362ab35e7b2290fc40e6f3e3af29ee9a9e64f4&")
             .setFooter({ text: `${winnerCount} người thắng | Bắt đầu lúc`, iconURL: client.user.displayAvatarURL() })
             .setTimestamp();
 
         const giveawayMsg = await message.channel.send({ 
-            content: "# <a:myshwing1:1531676766203019426> **__Giveaway bắt đầu__** <a:myshwing2:1531676769814581312>", 
+            content: "# <a:canhtraii:1547853380964065410> **__Giveaway bắt đầu__** <a:canhphaii:1547853665128153108>", 
             embeds: [embed] 
         });
 
@@ -1657,7 +1662,7 @@ if (command === "mute") {
         }
 
         await finishGiveaway(channel, messageId, gaData.title, gaData.creator, gaData.winnerCount, gaData.giveawayMsg);
-        return tempReply(message, "<a:daucheck:1543227340648087614> Đã dừng giveaway và công bố người chiến thắng thành công!");
+        return tempReply(message, "<:dautick:1548201957787836506> Đã dừng giveaway và công bố người chiến thắng thành công!");
     }
 
     // ga rr
@@ -1871,8 +1876,8 @@ else if (command === "role") {
                 .setTitle("❌ Gỡ Role thành công")
                 .setDescription(`Đã gỡ role ${roleToModify} khỏi ${memberToModify}.`)
                 .addFields(
-                    { name: "<a:camap:1529737268892274890> Moderator", value: message.author.tag, inline: true },
-                    { name: "<a:hoatim:1529735587026964491> Role", value: roleToModify.name, inline: true }
+                    { name: "<:own:1538912708764631100> Moderator", value: message.author.tag, inline: true },
+                    { name: "<:lovestruck:1538958699396337704> Role", value: roleToModify.name, inline: true }
                 )
                 .setTimestamp();
 
@@ -1887,8 +1892,8 @@ else if (command === "role") {
             .setTitle("<a:tikhong:1542901135088812092> Thêm Role thành công")
             .setDescription(`Đã thêm role ${roleToModify} cho ${memberToModify}.` + (timeString ? `\n⏱️ **Thời hạn:** ${timeString}` : ""))
             .addFields(
-                { name: "<a:camap:1529737268892274890> Moderator", value: message.author.tag, inline: true },
-                { name: "<a:hoatim:1529735587026964491> Role", value: roleToModify.name, inline: true }
+                { name: "<:own:1538912708764631100> Moderator", value: message.author.tag, inline: true },
+                { name: "<:lovestruck:1538958699396337704> Role", value: roleToModify.name, inline: true }
             )
             .setTimestamp();
 
@@ -1906,12 +1911,12 @@ else if (command === "role") {
                         // Tạo embed thông báo hết giờ (không bị ping role hay user)
                         const expireEmbed = new EmbedBuilder()
                             .setColor("#cf6aca")
-                            .setTitle("<a:milk1:1543226643961610352> Hết thời gian Temp Role")
+                            .setTitle("<:nohong:1548212367681388605> Hết thời gian Temp Role")
                             .setDescription(`Đã tự động gỡ role cho thành viên sau thời gian đã định.`)
                             .addFields(
-                                { name: "<a:hoatim:1529735587026964491> Role", value: roleToModify.name, inline: true },
-                                { name: "<a:camap:1529737268892274890> Thành viên", value: freshMember.user.tag, inline: true },
-                                { name: "<a:milk2:1543226670276808714> Thời hạn", value: timeString, inline: true }
+                                { name: "<:lovestruck:1538958699396337704> Role", value: roleToModify.name, inline: true },
+                                { name: "<:own:1538912708764631100> Thành viên", value: freshMember.user.tag, inline: true },
+                                { name: "<:noxanh:1548212422630842379> Thời hạn", value: timeString, inline: true }
                             )
                             .setTimestamp();
 
@@ -1993,7 +1998,7 @@ client.on("interactionCreate", async (interaction) => {
                         name: interaction.guild.name, 
                         iconURL: interaction.guild.iconURL({ dynamic: true }) 
                     })
-                    .setTitle("<a:hoatim:1529735587026964491> Danh sách lệnh Quản trị")
+                    .setTitle("<:seraph:1538958496035246222> Danh sách lệnh Quản trị")
                     .setDescription(
                         `### \`${prefix}ban\`\n` +
                         `* **Mô tả** : Cấm thành viên khỏi server.\n` +
@@ -2024,7 +2029,7 @@ client.on("interactionCreate", async (interaction) => {
                         name: interaction.guild.name, 
                         iconURL: interaction.guild.iconURL({ dynamic: true }) 
                     })
-                    .setTitle("<a:saohongto:1529736991598575626> Danh sách lệnh Cảnh cáo")
+                    .setTitle("<:single:1538960719054372936> Danh sách lệnh Cảnh cáo")
                     .setDescription(
                         `### \`${prefix}warn\`\n` +
                         `* **Mô tả** : Cảnh cáo thành viên.\n` +
@@ -2049,7 +2054,7 @@ client.on("interactionCreate", async (interaction) => {
                         name: interaction.guild.name, 
                         iconURL: interaction.guild.iconURL({ dynamic: true }) 
                     })
-                    .setTitle("<a:phao:1531654953461088447> Danh sách lệnh Giveaway")
+                    .setTitle("<:lovestruck:1538958699396337704> Danh sách lệnh Giveaway")
                     .setDescription(
                         `### \`${prefix}gastart\`\n` +
                         `* **Mô tả** : Tạo ra giveaway.\n` +
@@ -2073,7 +2078,7 @@ client.on("interactionCreate", async (interaction) => {
                         name: interaction.guild.name, 
                         iconURL: interaction.guild.iconURL({ dynamic: true }) 
                     })
-                    .setTitle("<a:camap:1529737268892274890> Danh sách lệnh User")
+                    .setTitle("<:dautick:1548201957787836506> Danh sách lệnh User")
                     .setDescription(
                         `### \`${prefix}avatar\`\n` +
                         `* **Mô tả** : Xem avatar của bạn hoặc yêu cầu xem của người khác.\n` +
